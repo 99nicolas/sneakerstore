@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navbar, Nav, Container, Badge } from 'react-bootstrap';
 
-function Navigation({ cartCount, onNavigate, currentPage }) {
+function Navigation({ cartCount, onNavigate, currentPage, user, onLogout }) {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
       <Container>
@@ -22,17 +22,57 @@ function Navigation({ cartCount, onNavigate, currentPage }) {
               Inicio
             </Nav.Link>
             <Nav.Link 
+              onClick={(e) => { e.preventDefault(); onNavigate('blog'); }}
+              active={currentPage === 'blog'}
+            >
+              Blog
+            </Nav.Link>
+            <Nav.Link 
+              onClick={(e) => { e.preventDefault(); onNavigate('about'); }}
+              active={currentPage === 'about'}
+            >
+              Sobre Nosotros
+            </Nav.Link>
+            <Nav.Link 
               onClick={(e) => { e.preventDefault(); onNavigate('cart'); }}
               active={currentPage === 'cart'}
             >
               Carrito {cartCount > 0 && <Badge bg="danger">{cartCount}</Badge>}
             </Nav.Link>
-            <Nav.Link 
-              onClick={(e) => { e.preventDefault(); onNavigate('admin'); }}
-              active={currentPage === 'admin'}
-            >
-              Admin
-            </Nav.Link>
+            
+            {user ? (
+              <>
+                <Nav.Link className="text-info">
+                  {user.type === 'admin' ? '🔐' : '👤'} {user.email || user.username}
+                </Nav.Link>
+                {user.type === 'admin' && (
+                  <Nav.Link 
+                    onClick={(e) => { e.preventDefault(); onNavigate('admin'); }}
+                    active={currentPage === 'admin'}
+                  >
+                    Admin
+                  </Nav.Link>
+                )}
+                <Nav.Link onClick={(e) => { e.preventDefault(); onLogout(); }}>
+                  Cerrar Sesión
+                </Nav.Link>
+              </>
+            ) : (
+              <>
+                <Nav.Link 
+                  onClick={(e) => { e.preventDefault(); onNavigate('login'); }}
+                  active={currentPage === 'login'}
+                >
+                  Login
+                </Nav.Link>
+                <Nav.Link 
+                  onClick={(e) => { e.preventDefault(); onNavigate('adminLogin'); }}
+                  active={currentPage === 'adminLogin'}
+                >
+                  Admin Login
+                </Nav.Link>
+              </>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>
