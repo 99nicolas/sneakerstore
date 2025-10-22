@@ -3,7 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import SneakerCard from '../components/SneakerCard';
 import sneakersData from '../data/sneakers';
 
-function Home({ onAddToCart }) {
+function Home({ onAddToCart, onViewDetails }) {
   return (
     <Container>
       <div className="text-center mb-5">
@@ -14,7 +14,11 @@ function Home({ onAddToCart }) {
       <Row xs={1} md={2} lg={3} className="g-4">
         {sneakersData.map((sneaker) => (
           <Col key={sneaker.id}>
-            <SneakerCard sneaker={sneaker} onAddToCart={onAddToCart} />
+            <SneakerCard 
+              sneaker={sneaker} 
+              onAddToCart={onAddToCart}
+              onViewDetails={onViewDetails}
+            />
           </Col>
         ))}
       </Row>

@@ -1,20 +1,26 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 
-function SneakerCard({ sneaker, onAddToCart }) {
+function SneakerCard({ sneaker, onAddToCart, onViewDetails }) {
   return (
     <Card className="h-100 shadow-sm">
       <Card.Img 
         variant="top" 
         src={sneaker.image} 
         alt={sneaker.name}
-        style={{ height: '200px', objectFit: 'cover' }}
+        style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
+        onClick={() => onViewDetails && onViewDetails(sneaker.id)}
       />
       <Card.Body className="d-flex flex-column">
         <div className="mb-2">
           <small className="text-muted">{sneaker.brand}</small>
         </div>
-        <Card.Title>{sneaker.name}</Card.Title>
+        <Card.Title 
+          style={{ cursor: 'pointer' }}
+          onClick={() => onViewDetails && onViewDetails(sneaker.id)}
+        >
+          {sneaker.name}
+        </Card.Title>
         <Card.Text className="flex-grow-1">
           {sneaker.description}
         </Card.Text>
@@ -23,14 +29,22 @@ function SneakerCard({ sneaker, onAddToCart }) {
             <h4 className="mb-0 text-primary">${sneaker.price}</h4>
             <small className="text-muted">Stock: {sneaker.stock}</small>
           </div>
-          <Button 
-            variant="primary" 
-            className="w-100"
-            onClick={() => onAddToCart(sneaker)}
-            disabled={sneaker.stock === 0}
-          >
-            {sneaker.stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
-          </Button>
+          <div className="d-grid gap-2">
+            <Button 
+              variant="outline-primary" 
+              size="sm"
+              onClick={() => onViewDetails && onViewDetails(sneaker.id)}
+            >
+              Ver Detalles
+            </Button>
+            <Button 
+              variant="primary" 
+              onClick={() => onAddToCart(sneaker)}
+              disabled={sneaker.stock === 0}
+            >
+              {sneaker.stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
+            </Button>
+          </div>
         </div>
       </Card.Body>
     </Card>
