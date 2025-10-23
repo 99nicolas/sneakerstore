@@ -1,7 +1,10 @@
 import React from 'react';
 import { Container, Table, Button, Alert, Card, Row, Col } from 'react-bootstrap';
+import { formatPrice } from '../utils/formatPrice';
 
+// Componente del carrito de compras
 function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
+  // Calcular el total del carrito
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   if (cart.length === 0) {
@@ -48,7 +51,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
                     </div>
                   </div>
                 </td>
-                <td>${item.price}</td>
+                <td>{formatPrice(item.price)}</td>
                 <td>
                   <div className="d-flex align-items-center">
                     <Button 
@@ -70,7 +73,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
                     </Button>
                   </div>
                 </td>
-                <td>${(item.price * item.quantity).toFixed(2)}</td>
+                <td>{formatPrice(item.price * item.quantity)}</td>
                 <td>
                   <Button 
                     size="sm" 
@@ -103,7 +106,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
                   <h6 className="mb-1">{item.name}</h6>
                   <small className="text-muted d-block mb-2">{item.brand}</small>
                   <p className="mb-2">
-                    <strong className="text-primary">${item.price}</strong>
+                    <strong className="text-primary">{formatPrice(item.price)}</strong>
                   </p>
                   <div className="d-flex align-items-center mb-2">
                     <Button 
@@ -124,7 +127,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
                       +
                     </Button>
                     <span className="ms-3">
-                      <strong>${(item.price * item.quantity).toFixed(2)}</strong>
+                      <strong>{formatPrice(item.price * item.quantity)}</strong>
                     </span>
                   </div>
                   <Button 
@@ -142,7 +145,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
       </div>
       
       <div className="text-end">
-        <h3>Total: ${total.toFixed(2)}</h3>
+        <h3>Total: {formatPrice(total)}</h3>
         <Button 
           variant="success" 
           size="lg" 

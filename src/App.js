@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
+import { Toast, ToastContainer } from 'react-bootstrap';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -22,7 +23,11 @@ export default function App() {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [orderData, setOrderData] = useState(null);
   const [checkoutError, setCheckoutError] = useState(null);
+  // Estado para el toast de notificación
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
+  // Función para manejar agregar productos al carrito
   const handleAddToCart = (sneaker) => {
     const existingItem = cart.find(item => item.id === sneaker.id);
     
@@ -32,11 +37,15 @@ export default function App() {
           ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
+      setToastMessage(`Se agregó otra unidad de "${sneaker.name}" al carrito`);
     } else {
       setCart([...cart, { ...sneaker, quantity: 1 }]);
+      setToastMessage(`"${sneaker.name}" fue agregado al carrito`);
     }
+    
+    // Mostrar notificación toast
+    setShowToast(true);
   };
-
   const handleUpdateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return;
     setCart(cart.map(item => 
@@ -46,33 +55,40 @@ export default function App() {
     ));
   };
 
+  // Función para eliminar producto del carrito
   const handleRemoveItem = (id) => {
     setCart(cart.filter(item => item.id !== id));
   };
 
+  // Calcular cantidad total de items en el carrito
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Función para manejar el login
   const handleLogin = (userData) => {
     setUser(userData);
   };
 
+  // Función para manejar el logout
   const handleLogout = () => {
     setUser(null);
     setCurrentPage('home');
   };
 
+  // Función para ver detalles de un producto
   const handleViewDetails = (productId) => {
     setSelectedProductId(productId);
     setCurrentPage('productDetail');
   };
 
+  // Función para volver desde la página de detalles
   const handleBackFromDetail = () => {
     setSelectedProductId(null);
     setCurrentPage('home');
   };
 
+  // Función para manejar la navegación
   const handleNavigate = (page) => {
-    // Protect admin page
+    // Proteger la página de admin
     if (page === 'admin' && (!user || user.type !== 'admin')) {
       setCurrentPage('adminLogin');
       return;
@@ -80,10 +96,11 @@ export default function App() {
     setCurrentPage(page);
   };
 
+  // Función para manejar la finalización del checkout
   const handleCheckoutComplete = (status, data) => {
     if (status === 'success') {
       setOrderData(data);
-      setCart([]); // Clear cart on successful purchase
+      setCart([]); // Limpiar carrito después de una compra exitosa
       setCurrentPage('checkoutSuccess');
     } else {
       setCheckoutError(data);
@@ -91,6 +108,7 @@ export default function App() {
     }
   };
 
+  // Función para reintentar checkout
   const handleRetryCheckout = () => {
     setCheckoutError(null);
     setCurrentPage('checkout');
@@ -159,6 +177,22 @@ export default function App() {
         )}
         {currentPage === 'admin' && user && user.type === 'admin' && <Admin />}
       </div>
+      
+      {/* Toast de notificación para agregar al carrito */}
+      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+        <Toast 
+          show={showToast} 
+          onClose={() => setShowToast(false)} 
+          delay={3000} 
+          autohide
+          bg="success"
+        >
+          <Toast.Header>
+            <strong className="me-auto">✓ Producto Agregado</strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
       
       <Footer onNavigate={handleNavigate} />
     </div>

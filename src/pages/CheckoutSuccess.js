@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Card, Button, Alert, Row, Col } from 'react-bootstrap';
+import { formatPrice } from '../utils/formatPrice';
 
+// Componente de éxito de compra
 function CheckoutSuccess({ orderData, onNavigate }) {
   if (!orderData) {
     return (
@@ -60,7 +62,7 @@ function CheckoutSuccess({ orderData, onNavigate }) {
                       <strong>Total:</strong>
                     </Col>
                     <Col xs={6} className="text-end">
-                      <strong>${orderData.total.toFixed(2)}</strong>
+                      <strong>{formatPrice(orderData.total)}</strong>
                     </Col>
                   </Row>
                 </Card.Body>

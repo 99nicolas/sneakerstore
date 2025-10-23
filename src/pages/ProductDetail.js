@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Button, Badge, Card, ListGroup } from 'react-bootstrap';
+import { formatPrice } from '../utils/formatPrice';
 
+// Componente de detalles del producto
 function ProductDetail({ productId, onAddToCart, onBack, sneakers }) {
   const product = sneakers.find(s => s.id === productId);
   const [selectedSize, setSelectedSize] = useState('');
@@ -52,7 +54,7 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers }) {
           
           <h1 className="mb-3">{product.name}</h1>
           
-          <h2 className="text-primary mb-4">${product.price}</h2>
+          <h2 className="text-primary mb-4">{formatPrice(product.price)}</h2>
           
           <Card className="mb-4">
             <Card.Body>
