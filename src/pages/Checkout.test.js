@@ -2,12 +2,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Checkout from './Checkout';
 
 describe('Checkout Component', () => {
+  // Datos de prueba con precios en CLP
   const mockCart = [
     {
       id: 1,
       name: 'Air Max Classic',
       brand: 'Nike',
-      price: 129.99,
+      price: 116990, // Precio en CLP
       quantity: 2,
       image: 'test.jpg'
     }
@@ -60,8 +61,8 @@ describe('Checkout Component', () => {
       />
     );
 
-    const total = (129.99 * 2).toFixed(2);
-    expect(screen.getByText(`Pagar $${total}`)).toBeInTheDocument();
+    // Verificar que el total esté formateado en CLP
+    expect(screen.getByText(/Pagar \$233\.980/i)).toBeInTheDocument();
   });
 
   test('shows validation errors when submitting empty form', async () => {
