@@ -4,6 +4,9 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import CheckoutFailure from './pages/CheckoutFailure';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
@@ -17,6 +20,8 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [orderData, setOrderData] = useState(null);
+  const [checkoutError, setCheckoutError] = useState(null);
 
   const handleAddToCart = (sneaker) => {
     const existingItem = cart.find(item => item.id === sneaker.id);
@@ -75,6 +80,22 @@ export default function App() {
     setCurrentPage(page);
   };
 
+  const handleCheckoutComplete = (status, data) => {
+    if (status === 'success') {
+      setOrderData(data);
+      setCart([]); // Clear cart on successful purchase
+      setCurrentPage('checkoutSuccess');
+    } else {
+      setCheckoutError(data);
+      setCurrentPage('checkoutFailure');
+    }
+  };
+
+  const handleRetryCheckout = () => {
+    setCheckoutError(null);
+    setCurrentPage('checkout');
+  };
+
   return (
     <div className="App d-flex flex-column min-vh-100">
       <Navigation 
@@ -105,6 +126,27 @@ export default function App() {
             cart={cart}
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
+            onNavigate={handleNavigate}
+          />
+        )}
+        {currentPage === 'checkout' && (
+          <Checkout 
+            cart={cart}
+            onCheckoutComplete={handleCheckoutComplete}
+            onNavigate={handleNavigate}
+          />
+        )}
+        {currentPage === 'checkoutSuccess' && (
+          <CheckoutSuccess 
+            orderData={orderData}
+            onNavigate={handleNavigate}
+          />
+        )}
+        {currentPage === 'checkoutFailure' && (
+          <CheckoutFailure 
+            errorData={checkoutError}
+            onNavigate={handleNavigate}
+            onRetry={handleRetryCheckout}
           />
         )}
         {currentPage === 'blog' && <Blog />}

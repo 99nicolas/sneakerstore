@@ -1,70 +1,190 @@
-# Getting Started with Create React App
+# Sneaker Store
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Una aplicación web moderna de comercio electrónico para la venta de zapatillas deportivas, construida con React y Bootstrap.
 
-## Available Scripts
+## Características
 
-In the project directory, you can run:
+### Funcionalidades Principales
+- 🛍️ **Catálogo de Productos**: Visualización de zapatillas con imágenes, descripciones y precios
+- 🔍 **Búsqueda y Filtros**: Sistema de búsqueda en tiempo real y filtrado por marca
+- 🛒 **Carrito de Compras**: Gestión completa del carrito con cantidades ajustables
+- 💳 **Proceso de Checkout**: Formulario completo para datos personales, dirección de entrega y pago
+- ✅ **Confirmación de Compra**: Páginas de éxito y error para el proceso de pago
+- 📱 **Diseño Responsivo**: Interfaz optimizada para móviles, tabletas y escritorios
+- 👤 **Sistema de Autenticación**: Login para usuarios y administradores
+- 🎨 **Detalles de Producto**: Página dedicada con información completa y selección de tallas
+
+### Características Técnicas
+- React 19.2.0
+- Bootstrap 5.3.8 y React-Bootstrap 2.10.10
+- Navegación basada en estado (SPA)
+- Pruebas unitarias con Jest y React Testing Library
+- Validación de formularios
+- Diseño mobile-first
+
+## Instalación
+
+Este proyecto fue creado con [Create React App](https://github.com/facebook/create-react-app).
+
+### Prerrequisitos
+- Node.js (versión 14 o superior)
+- npm o yarn
+
+### Pasos de Instalación
+
+1. Clonar el repositorio:
+```bash
+git clone https://github.com/99nicolas/sneakerstore.git
+cd sneakerstore
+```
+
+2. Instalar dependencias:
+```bash
+npm install
+```
+
+3. Iniciar el servidor de desarrollo:
+```bash
+npm start
+```
+
+La aplicación se abrirá en [http://localhost:3000](http://localhost:3000).
+
+## Scripts Disponibles
+
+En el directorio del proyecto, puedes ejecutar:
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Ejecuta la aplicación en modo de desarrollo.\
+Abre [http://localhost:3000](http://localhost:3000) para verla en tu navegador.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+La página se recargará cuando hagas cambios.\
+También verás cualquier error de lint en la consola.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Lanza el corredor de pruebas en modo interactivo.\
+Ver más sobre [ejecutar pruebas](https://facebook.github.io/create-react-app/docs/running-tests).
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Construye la aplicación para producción en la carpeta `build`.\
+Empaqueta correctamente React en modo de producción y optimiza la construcción para el mejor rendimiento.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+La construcción está minificada y los nombres de archivo incluyen los hashes.\
+¡Tu aplicación está lista para ser desplegada!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Ver más sobre [despliegue](https://cra.link/deployment).
 
-### `npm run eject`
+## Estructura del Proyecto
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+sneakerstore/
+├── public/
+│   ├── index.html
+│   └── manifest.json
+├── src/
+│   ├── components/
+│   │   ├── Footer.js
+│   │   ├── Navigation.js
+│   │   └── SneakerCard.js
+│   ├── data/
+│   │   └── sneakers.js
+│   ├── pages/
+│   │   ├── About.js
+│   │   ├── Admin.js
+│   │   ├── AdminLogin.js
+│   │   ├── Blog.js
+│   │   ├── Cart.js
+│   │   ├── Checkout.js
+│   │   ├── CheckoutSuccess.js
+│   │   ├── CheckoutFailure.js
+│   │   ├── Home.js
+│   │   ├── Login.js
+│   │   └── ProductDetail.js
+│   ├── App.js
+│   ├── App.test.js
+│   └── index.js
+├── package.json
+└── README.md
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Pruebas
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+El proyecto incluye pruebas unitarias para los componentes principales:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **App.test.js**: Prueba de renderizado principal
+- **Home.test.js**: Pruebas de búsqueda y filtrado de productos
+- **Checkout.test.js**: Pruebas del formulario de checkout
+- **CheckoutSuccess.test.js**: Pruebas de la página de éxito
+- **CheckoutFailure.test.js**: Pruebas de la página de error
 
-## Learn More
+Ejecutar todas las pruebas:
+```bash
+npm test
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Ejecutar pruebas con cobertura:
+```bash
+npm test -- --coverage
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Características de Diseño Responsivo
 
-### Code Splitting
+### Mobile (< 576px)
+- Navegación colapsable
+- Carrito en formato de tarjetas
+- Formularios de una columna
+- Imágenes optimizadas
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Tablet (576px - 991px)
+- Grid de 2 columnas para productos
+- Navegación expandible
+- Formularios de dos columnas
 
-### Analyzing the Bundle Size
+### Desktop (≥ 992px)
+- Grid de 3 columnas para productos
+- Tabla completa para el carrito
+- Formularios multi-columna
+- Navegación completa siempre visible
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Funcionalidades Futuras
 
-### Making a Progressive Web App
+- Integración con pasarela de pago real
+- Base de datos persistente
+- Sistema de reviews y calificaciones
+- Wishlist / Lista de deseos
+- Historial de pedidos
+- Notificaciones por email
+- Integración con servicios de envío
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Tecnologías Utilizadas
 
-### Advanced Configuration
+- **React**: Framework principal
+- **Bootstrap**: Framework CSS
+- **React-Bootstrap**: Componentes de Bootstrap para React
+- **Jest**: Framework de pruebas
+- **React Testing Library**: Utilidades de prueba para React
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Contribuir
 
-### Deployment
+Las contribuciones son bienvenidas. Por favor:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-### `npm run build` fails to minify
+## Licencia
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+
+## Contacto
+
+Para preguntas o sugerencias, por favor abre un issue en el repositorio.
+
+---
+
+Desarrollado con ❤️ usando React y Bootstrap
