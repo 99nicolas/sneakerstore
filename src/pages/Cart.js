@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Table, Button, Alert } from 'react-bootstrap';
 
-function Cart({ cart, onUpdateQuantity, onRemoveItem }) {
+function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   if (cart.length === 0) {
@@ -84,7 +84,12 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem }) {
       
       <div className="text-end">
         <h3>Total: ${total.toFixed(2)}</h3>
-        <Button variant="success" size="lg" className="mt-3">
+        <Button 
+          variant="success" 
+          size="lg" 
+          className="mt-3"
+          onClick={() => onNavigate('checkout')}
+        >
           Proceder al Pago
         </Button>
       </div>
