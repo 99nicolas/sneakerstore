@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
+import { formatPrice } from '../utils/formatPrice';
 
+// Componente de checkout para finalizar la compra
 function Checkout({ cart, onCheckoutComplete, onNavigate }) {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -20,13 +22,16 @@ function Checkout({ cart, onCheckoutComplete, onNavigate }) {
   const [validated, setValidated] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Calcular el total del carrito
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+  // Manejar cambios en el formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // Manejar envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -40,11 +45,11 @@ function Checkout({ cart, onCheckoutComplete, onNavigate }) {
     setValidated(true);
     setIsProcessing(true);
 
-    // Simulate payment processing
+    // Simular procesamiento de pago
     setTimeout(() => {
       setIsProcessing(false);
-      // Simulate random success/failure for demonstration
-      const isSuccess = Math.random() > 0.2; // 80% success rate
+      // Simular éxito/fallo aleatorio para demostración
+      const isSuccess = Math.random() > 0.2; // 80% tasa de éxito
       
       if (isSuccess) {
         onCheckoutComplete('success', {
@@ -300,7 +305,7 @@ function Checkout({ cart, onCheckoutComplete, onNavigate }) {
                     type="submit"
                     disabled={isProcessing}
                   >
-                    {isProcessing ? 'Procesando...' : `Pagar $${total.toFixed(2)}`}
+                    {isProcessing ? 'Procesando...' : `Pagar ${formatPrice(total)}`}
                   </Button>
                   <Button 
                     variant="outline-secondary" 
@@ -327,14 +332,14 @@ function Checkout({ cart, onCheckoutComplete, onNavigate }) {
                     <small className="text-muted">Cantidad: {item.quantity}</small>
                   </div>
                   <div>
-                    <small>${(item.price * item.quantity).toFixed(2)}</small>
+                    <small>{formatPrice(item.price * item.quantity)}</small>
                   </div>
                 </div>
               ))}
               <hr />
               <div className="d-flex justify-content-between">
                 <strong>Total:</strong>
-                <strong>${total.toFixed(2)}</strong>
+                <strong>{formatPrice(total)}</strong>
               </div>
             </Card.Body>
           </Card>

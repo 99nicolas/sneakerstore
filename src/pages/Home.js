@@ -3,14 +3,15 @@ import { Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
 import SneakerCard from '../components/SneakerCard';
 import sneakersData from '../data/sneakers';
 
+// Componente de la página principal
 function Home({ onAddToCart, onViewDetails }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBrand, setFilterBrand] = useState('');
 
-  // Get unique brands for filter
+  // Obtener marcas únicas para el filtro
   const brands = ['Todas', ...new Set(sneakersData.map(s => s.brand))];
 
-  // Filter sneakers based on search and brand filter
+  // Filtrar zapatillas basado en búsqueda y marca
   const filteredSneakers = sneakersData.filter(sneaker => {
     const matchesSearch = sneaker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           sneaker.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -22,11 +23,11 @@ function Home({ onAddToCart, onViewDetails }) {
   return (
     <Container>
       <div className="text-center mb-5">
-        <h1 className="display-4 fw-bold">Bienvenido a Sneaker Store</h1>
+        <h1 className="display-4 fw-bold mb-3">Bienvenido a Sneaker Store</h1>
         <p className="lead text-muted">Encuentra las mejores zapatillas para tu estilo</p>
       </div>
 
-      {/* Search and Filter Section */}
+      {/* Sección de búsqueda y filtro */}
       <Row className="mb-4">
         <Col md={8} className="mx-auto">
           <InputGroup className="mb-3">

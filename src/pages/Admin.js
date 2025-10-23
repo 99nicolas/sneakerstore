@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Container, Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import sneakersData from '../data/sneakers';
+import { formatPrice } from '../utils/formatPrice';
 
+// Componente del panel de administración
 function Admin() {
   const [products, setProducts] = useState(sneakersData);
   const [showModal, setShowModal] = useState(false);
@@ -14,6 +16,7 @@ function Admin() {
     description: ''
   });
 
+  // Manejar edición de producto
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -26,6 +29,7 @@ function Admin() {
     setShowModal(true);
   };
 
+  // Guardar cambios del producto
   const handleSave = () => {
     if (editingProduct) {
       setProducts(products.map(p => 
@@ -38,6 +42,7 @@ function Admin() {
     setEditingProduct(null);
   };
 
+  // Cerrar modal sin guardar
   const handleClose = () => {
     setShowModal(false);
     setEditingProduct(null);
@@ -70,7 +75,7 @@ function Admin() {
               <td>{product.id}</td>
               <td>{product.name}</td>
               <td>{product.brand}</td>
-              <td>${product.price}</td>
+              <td>{formatPrice(product.price)}</td>
               <td>{product.stock}</td>
               <td>
                 <Button 
@@ -109,10 +114,10 @@ function Admin() {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Precio</Form.Label>
+              <Form.Label>Precio (CLP)</Form.Label>
               <Form.Control
                 type="number"
-                step="0.01"
+                step="1"
                 value={formData.price}
                 onChange={(e) => setFormData({...formData, price: e.target.value})}
               />

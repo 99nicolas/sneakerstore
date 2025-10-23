@@ -2,9 +2,10 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import CheckoutSuccess from './CheckoutSuccess';
 
 describe('CheckoutSuccess Component', () => {
+  // Datos de prueba con precios en CLP
   const mockOrderData = {
     orderId: 123456,
-    total: 259.98,
+    total: 233991, // Precio en CLP
     date: '01/01/2024',
     firstName: 'John',
     lastName: 'Doe',
@@ -33,7 +34,8 @@ describe('CheckoutSuccess Component', () => {
     expect(screen.getByText(/Tu pedido ha sido procesado correctamente/i)).toBeInTheDocument();
     expect(screen.getByText(`#${mockOrderData.orderId}`)).toBeInTheDocument();
     expect(screen.getByText(mockOrderData.date)).toBeInTheDocument();
-    expect(screen.getByText(`$${mockOrderData.total.toFixed(2)}`)).toBeInTheDocument();
+    // Verificar formato CLP
+    expect(screen.getByText(/\$233\.991/i)).toBeInTheDocument();
   });
 
   test('displays shipping information', () => {

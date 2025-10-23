@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navbar, Nav, Container, Badge } from 'react-bootstrap';
 
+// Componente de navegación principal
 function Navigation({ cartCount, onNavigate, currentPage, user, onLogout }) {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
@@ -37,9 +38,11 @@ function Navigation({ cartCount, onNavigate, currentPage, user, onLogout }) {
               onClick={(e) => { e.preventDefault(); onNavigate('cart'); }}
               active={currentPage === 'cart'}
             >
+              {/* Mostrar cantidad de items en el carrito con badge */}
               Carrito {cartCount > 0 && <Badge bg="danger">{cartCount}</Badge>}
             </Nav.Link>
             
+            {/* Mostrar opciones según si el usuario está logueado */}
             {user ? (
               <>
                 <Nav.Link className="text-info">
