@@ -6,7 +6,7 @@ const sneakers = [
     name: "Air Max Classic",
     brand: "Nike",
     price: 116990, // Precio en CLP
-    image: "https://via.placeholder.com/300x200/FF5733/FFFFFF?text=Air+Max+Classic",
+    image: "https://nikeclprod.vtexassets.com/arquivos/ids/271740-1200-1200?v=637771712646000000&width=1200&height=1200&aspect=true",
     description: "Zapatillas deportivas clásicas con cámara de aire visible",
     size: [7, 8, 9, 10, 11, 12],
     stock: 15
@@ -16,7 +16,7 @@ const sneakers = [
     name: "Ultra Boost",
     brand: "Adidas",
     price: 134990, // Precio en CLP
-    image: "https://via.placeholder.com/300x200/33C3FF/FFFFFF?text=Ultra+Boost",
+    image: "https://cdn-images.farfetch-contents.com/19/43/49/22/19434922_43282895_1000.jpg",
     description: "Máximo confort con tecnología Boost",
     size: [7, 8, 9, 10, 11, 12],
     stock: 20
@@ -26,7 +26,7 @@ const sneakers = [
     name: "Chuck Taylor",
     brand: "Converse",
     price: 62990, // Precio en CLP
-    image: "https://via.placeholder.com/300x200/000000/FFFFFF?text=Chuck+Taylor",
+    image: "https://rimage.ripley.cl/home.ripley/Attachment/WOP/1/2000342698550/full_image-2000342698550",
     description: "Icónicas zapatillas de estilo casual",
     size: [6, 7, 8, 9, 10, 11],
     stock: 30
