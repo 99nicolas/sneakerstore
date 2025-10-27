@@ -3,9 +3,15 @@ import { Container, Row, Col, Button, Badge, Card, ListGroup } from 'react-boots
 import { formatPrice } from '../utils/formatPrice';
 
 // Componente de detalles del producto
-function ProductDetail({ productId, onAddToCart, onBack, sneakers }) {
-  const product = sneakers.find(s => s.id === productId);
+function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} }) {
+  const baseProduct = sneakers.find(s => s.id === productId);
   const [selectedSize, setSelectedSize] = useState('');
+
+  // Combinar producto con stock actual
+  const product = baseProduct ? {
+    ...baseProduct,
+    stock: stock[baseProduct.id] !== undefined ? stock[baseProduct.id] : baseProduct.stock
+  } : null;
 
   if (!product) {
     return (

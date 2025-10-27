@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -16,6 +16,7 @@ import Blog from './pages/Blog';
 import About from './pages/About';
 import ProductDetail from './pages/ProductDetail';
 import sneakersData from './data/sneakers';
+import * as localStorageUtils from './utils/localStorage';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -24,9 +25,35 @@ export default function App() {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [orderData, setOrderData] = useState(null);
   const [checkoutError, setCheckoutError] = useState(null);
+  const [stock, setStock] = useState({});
   // Estado para el toast de notificación
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // Inicializar datos del local storage al montar el componente
+  useEffect(() => {
+    // Inicializar stock si no existe
+    localStorageUtils.initializeStock(sneakersData);
+    
+    // Cargar stock actual
+    const currentStock = localStorageUtils.getStock();
+    setStock(currentStock);
+    
+    // Cargar carrito guardado
+    const savedCart = localStorageUtils.getCart();
+    setCart(savedCart);
+    
+    // Cargar usuario actual si existe
+    const currentUser = localStorageUtils.getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+    }
+  }, []);
+
+  // Guardar carrito en local storage cada vez que cambie
+  useEffect(() => {
+    localStorageUtils.saveCart(cart);
+  }, [cart]);
 
   // Función para manejar agregar productos al carrito
   const handleAddToCart = (sneaker) => {
@@ -69,11 +96,13 @@ export default function App() {
   // Función para manejar el login
   const handleLogin = (userData) => {
     setUser(userData);
+    localStorageUtils.setCurrentUser(userData);
   };
 
   // Función para manejar el logout
   const handleLogout = () => {
     setUser(null);
+    localStorageUtils.clearCurrentUser();
     setCurrentPage('home');
   };
 
@@ -102,8 +131,23 @@ export default function App() {
   // Función para manejar la finalización del checkout
   const handleCheckoutComplete = (status, data) => {
     if (status === 'success') {
+      // Guardar compra en local storage
+      localStorageUtils.savePurchase({
+        ...data,
+        cart: cart,
+        userId: user?.email || data.email
+      });
+      
+      // Reducir stock de productos comprados
+      const stockResult = localStorageUtils.reduceStockFromCart(cart);
+      if (stockResult.success) {
+        // Actualizar estado del stock
+        setStock(localStorageUtils.getStock());
+      }
+      
       setOrderData(data);
       setCart([]); // Limpiar carrito después de una compra exitosa
+      localStorageUtils.clearCart();
       setCurrentPage('checkoutSuccess');
     } else {
       setCheckoutError(data);
@@ -132,6 +176,7 @@ export default function App() {
           <Home 
             onAddToCart={handleAddToCart} 
             onViewDetails={handleViewDetails}
+            stock={stock}
           />
         )}
         {currentPage === 'productDetail' && (
@@ -140,6 +185,7 @@ export default function App() {
             onAddToCart={handleAddToCart}
             onBack={handleBackFromDetail}
             sneakers={sneakersData}
+            stock={stock}
           />
         )}
         {currentPage === 'cart' && (

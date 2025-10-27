@@ -4,15 +4,21 @@ import SneakerCard from '../components/SneakerCard';
 import sneakersData from '../data/sneakers';
 
 // Componente de la página principal
-function Home({ onAddToCart, onViewDetails }) {
+function Home({ onAddToCart, onViewDetails, stock = {} }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBrand, setFilterBrand] = useState('');
 
   // Obtener marcas únicas para el filtro
   const brands = ['Todas', ...new Set(sneakersData.map(s => s.brand))];
 
+  // Combinar datos de zapatillas con stock actual
+  const sneakersWithStock = sneakersData.map(sneaker => ({
+    ...sneaker,
+    stock: stock[sneaker.id] !== undefined ? stock[sneaker.id] : sneaker.stock
+  }));
+
   // Filtrar zapatillas basado en búsqueda y marca
-  const filteredSneakers = sneakersData.filter(sneaker => {
+  const filteredSneakers = sneakersWithStock.filter(sneaker => {
     const matchesSearch = sneaker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           sneaker.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           sneaker.description.toLowerCase().includes(searchTerm.toLowerCase());
