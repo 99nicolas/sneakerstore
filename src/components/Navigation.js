@@ -4,7 +4,7 @@ import { Navbar, Nav, Container, Badge } from 'react-bootstrap';
 // Componente de navegación principal
 function Navigation({ cartCount, onNavigate, currentPage, user, onLogout }) {
   return (
-    <Navbar bg="white" variant="light" expand="lg" className="mb-4 navbar-custom shadow-sm">
+    <Navbar bg="white" variant="light" expand="lg" className="mb-4 navbar-custom shadow-sm" fixed="top">
       <Container>
         <Navbar.Brand 
           href="#" 

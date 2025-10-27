@@ -68,7 +68,7 @@ function Login({ onLogin, onNavigate }) {
             <small className="text-muted">
               ¿No tienes cuenta? <button 
                 className="btn btn-link p-0 text-decoration-none" 
-                onClick={(e) => { e.preventDefault(); }}
+                onClick={(e) => { e.preventDefault(); onNavigate('register'); }}
                 style={{ border: 'none', background: 'none', verticalAlign: 'baseline' }}
               >
                 Regístrate aquí

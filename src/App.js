@@ -10,6 +10,7 @@ import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFailure from './pages/CheckoutFailure';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import AdminLogin from './pages/AdminLogin';
 import Blog from './pages/Blog';
 import About from './pages/About';
@@ -37,10 +38,12 @@ export default function App() {
           ? { ...item, quantity: item.quantity + 1 }
           : item
       ));
-      setToastMessage(`Se agregó otra unidad de "${sneaker.name}" al carrito`);
+      const sizeText = sneaker.selectedSize ? ` (Talla ${sneaker.selectedSize})` : '';
+      setToastMessage(`Se agregó otra unidad de "${sneaker.name}"${sizeText} al carrito`);
     } else {
       setCart([...cart, { ...sneaker, quantity: 1 }]);
-      setToastMessage(`"${sneaker.name}" fue agregado al carrito`);
+      const sizeText = sneaker.selectedSize ? ` (Talla ${sneaker.selectedSize})` : '';
+      setToastMessage(`"${sneaker.name}"${sizeText} fue agregado al carrito`);
     }
     
     // Mostrar notificación toast
@@ -171,6 +174,9 @@ export default function App() {
         {currentPage === 'about' && <About />}
         {currentPage === 'login' && (
           <Login onLogin={handleLogin} onNavigate={setCurrentPage} />
+        )}
+        {currentPage === 'register' && (
+          <Register onRegister={handleLogin} onNavigate={setCurrentPage} />
         )}
         {currentPage === 'adminLogin' && (
           <AdminLogin onLogin={handleLogin} onNavigate={setCurrentPage} />

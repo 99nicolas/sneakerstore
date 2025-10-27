@@ -145,6 +145,12 @@ footer {
   background-color: var(--bg-white) !important;
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 0;
+  z-index: 1030;
+}
+
+/* Compensar el espacio del navbar fijo */
+body {
+  padding-top: 80px;
 }
 
 .brand-custom {
