@@ -17,7 +17,11 @@ function SizeSelectionModal({ show, onHide, sneaker, onConfirm }) {
     onHide();
   };
 
-  if (!sneaker) return null;
+  if (!sneaker) {
+    return null;
+  }
+  
+  const availableSizes = sneaker.size || [];
 
   return (
     <Modal show={show} onHide={handleClose} centered>
@@ -31,7 +35,7 @@ function SizeSelectionModal({ show, onHide, sneaker, onConfirm }) {
         </div>
         <p className="mb-3">Por favor, selecciona la talla de tu zapatilla:</p>
         <ListGroup>
-          {sneaker.size && sneaker.size.map(size => (
+          {availableSizes.map(size => (
             <ListGroup.Item
               key={size}
               action
