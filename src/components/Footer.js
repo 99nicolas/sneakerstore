@@ -12,7 +12,7 @@ function Footer({ onNavigate }) {
   };
 
   return (
-    <footer className="bg-dark text-light mt-5 py-4">
+    <footer className="bg-dark text-light mt-5 py-4" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' }}>
       <Container>
         <Row>
           <Col md={4} className="mb-3 mb-md-0">

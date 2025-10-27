@@ -1,4 +1,22 @@
 /* Estilos globales para la aplicación */
+:root {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary-color: #ec4899;
+  --secondary-hover: #db2777;
+  --accent-color: #14b8a6;
+  --accent-hover: #0d9488;
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -6,7 +24,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8f9fa;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
 }
 
 code {
@@ -16,82 +35,194 @@ code {
 
 /* Estilos minimalistas para las tarjetas */
 .card {
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
   transition: all 0.3s ease;
+  background-color: var(--bg-white);
+  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
 }
 
 /* Estilos para los botones */
 .btn-primary {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  border-radius: 8px;
-  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
   font-weight: 500;
   transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
 }
 
 .btn-outline-primary {
-  border-radius: 8px;
-  padding: 10px 20px;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
-.btn-outline-primary:hover {
+.btn-danger:hover {
+  background: linear-gradient(135deg, var(--secondary-hover) 0%, var(--secondary-color) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.3);
 }
 
 /* Estilos para inputs y formularios */
 .form-control, .form-select {
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-  padding: 10px 15px;
+  border-radius: 10px;
+  border: 2px solid var(--border-color);
+  padding: 12px 16px;
   transition: all 0.3s ease;
+  background-color: var(--bg-white);
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+  background-color: var(--bg-white);
 }
 
 /* Mejoras para la tabla */
 .table {
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 /* Estilos para el footer */
 footer {
   margin-top: auto;
+  background: linear-gradient(135deg, var(--text-dark) 0%, #0f172a 100%) !important;
 }
 
 /* Mejoras en la navegación */
-.navbar {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+.navbar-custom {
+  background-color: var(--bg-white) !important;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+
+.brand-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary-color) !important;
+  transition: all 0.3s ease;
+}
+
+.brand-custom:hover {
+  color: var(--primary-hover) !important;
+  transform: scale(1.05);
+}
+
+.brand-icon {
+  font-size: 1.8rem;
+}
+
+.nav-link-custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px !important;
+  margin: 0 4px;
+  border-radius: 10px;
+  color: var(--text-dark) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-link-custom:hover {
+  background-color: var(--bg-light);
+  color: var(--primary-color) !important;
+  transform: translateY(-2px);
+}
+
+.nav-link-custom.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white !important;
+  box-shadow: var(--shadow-md);
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+}
+
+.nav-text {
+  font-size: 0.95rem;
+}
+
+.cart-badge {
+  top: 2px;
+  right: 8px;
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%) !important;
+}
+
+.user-info {
+  color: var(--primary-color) !important;
+  font-weight: 600;
 }
 
 /* Espaciado y diseño limpio */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  color: #212529;
+  color: var(--text-dark);
 }
 
 .text-muted {
-  color: #6c757d !important;
+  color: var(--text-muted) !important;
+}
+
+.lead {
+  color: var(--text-muted) !important;
 }
 
 /* Animación suave para elementos interactivos */
@@ -101,12 +232,49 @@ a, button {
 
 /* Estilos para imágenes de productos */
 img {
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 /* Toast personalizado */
 .toast {
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: none;
+}
+
+/* Badge personalizado */
+.badge {
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 6px 12px;
+  font-weight: 500;
+}
+
+/* Input group personalizado */
+.input-group-text {
+  background-color: var(--bg-white);
+  border: 2px solid var(--border-color);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  color: var(--text-muted);
+}
+
+.input-group .form-control {
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+}
+
+.input-group .form-control:focus {
+  border-left: none;
+}
+
+/* Mejoras en hover de enlaces */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--primary-hover);
 }
 
