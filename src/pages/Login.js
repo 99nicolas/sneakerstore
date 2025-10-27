@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
+import * as localStorageUtils from '../utils/localStorage';
 
 function Login({ onLogin, onNavigate }) {
   const [formData, setFormData] = useState({
@@ -18,12 +19,20 @@ function Login({ onLogin, onNavigate }) {
       return;
     }
     
-    // Demo credentials
-    if (formData.email === 'usuario@ejemplo.com' && formData.password === 'usuario123') {
-      onLogin({ email: formData.email, type: 'user' });
+    // Verificar credenciales contra local storage
+    const result = localStorageUtils.validateUser(formData.email, formData.password);
+    
+    if (result.success) {
+      onLogin({ email: result.user.email, name: result.user.name, type: 'user' });
       onNavigate('home');
     } else {
-      setError('Credenciales inválidas. Intenta con usuario@ejemplo.com / usuario123');
+      // Fallback a credenciales demo
+      if (formData.email === 'usuario@ejemplo.com' && formData.password === 'usuario123') {
+        onLogin({ email: formData.email, type: 'user' });
+        onNavigate('home');
+      } else {
+        setError('Credenciales inválidas. Intenta con usuario@ejemplo.com / usuario123 o regístrate');
+      }
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
+import * as localStorageUtils from '../utils/localStorage';
 
 function Register({ onRegister, onNavigate }) {
   const [formData, setFormData] = useState({
@@ -29,6 +30,19 @@ function Register({ onRegister, onNavigate }) {
     
     if (formData.password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
+    // Guardar usuario en local storage
+    const result = localStorageUtils.saveUser({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      type: 'user'
+    });
+    
+    if (!result.success) {
+      setError(result.message);
       return;
     }
     
