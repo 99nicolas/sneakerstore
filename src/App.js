@@ -48,6 +48,19 @@ export default function App() {
     if (currentUser) {
       setUser(currentUser);
     }
+
+    // Escuchar actualizaciones de stock desde el panel de admin
+    const handleStockUpdate = () => {
+      const updatedStock = localStorageUtils.getStock();
+      setStock(updatedStock);
+    };
+
+    window.addEventListener('stockUpdated', handleStockUpdate);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('stockUpdated', handleStockUpdate);
+    };
   }, []);
 
   // Guardar carrito en local storage cada vez que cambie

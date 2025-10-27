@@ -151,6 +151,21 @@ export const updateStock = (productId, quantity) => {
 };
 
 /**
+ * Establece el stock de un producto a un valor específico
+ */
+export const setStock = (productId, newStock) => {
+  try {
+    const stock = getStock();
+    stock[productId] = Math.max(0, newStock);
+    localStorage.setItem(STORAGE_KEYS.STOCK, JSON.stringify(stock));
+    return { success: true, newStock: stock[productId] };
+  } catch (error) {
+    console.error('Error al establecer stock:', error);
+    return { success: false, message: 'Error al establecer stock' };
+  }
+};
+
+/**
  * Reduce el stock basado en los items del carrito
  */
 export const reduceStockFromCart = (cartItems) => {
