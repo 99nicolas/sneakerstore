@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Container, Table, Button, Modal, Form, Alert } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Table, Button, Modal, Form, Alert, Tabs, Tab } from 'react-bootstrap';
 import sneakersData from '../data/sneakers';
 import { formatPrice } from '../utils/formatPrice';
+import * as localStorageUtils from '../utils/localStorage';
 
 // Componente del panel de administración
 function Admin() {
@@ -15,6 +16,26 @@ function Admin() {
     stock: '',
     description: ''
   });
+  const [users, setUsers] = useState([]);
+  const [stock, setStock] = useState({});
+
+  // Cargar usuarios y stock al montar el componente
+  useEffect(() => {
+    const registeredUsers = localStorageUtils.getUsers();
+    setUsers(registeredUsers);
+    
+    const currentStock = localStorageUtils.getStock();
+    setStock(currentStock);
+  }, []);
+
+  // Actualizar productos con el stock actual
+  useEffect(() => {
+    const productsWithStock = sneakersData.map(product => ({
+      ...product,
+      stock: stock[product.id] !== undefined ? stock[product.id] : product.stock
+    }));
+    setProducts(productsWithStock);
+  }, [stock]);
 
   // Manejar edición de producto
   const handleEdit = (product) => {
@@ -32,11 +53,24 @@ function Admin() {
   // Guardar cambios del producto
   const handleSave = () => {
     if (editingProduct) {
+      const newStock = parseInt(formData.stock);
+      
+      // Actualizar productos en el estado local
       setProducts(products.map(p => 
         p.id === editingProduct.id 
-          ? { ...p, ...formData, price: parseFloat(formData.price), stock: parseInt(formData.stock) }
+          ? { ...p, ...formData, price: parseFloat(formData.price), stock: newStock }
           : p
       ));
+      
+      // Guardar el stock en localStorage
+      const updatedStock = { ...stock, [editingProduct.id]: newStock };
+      setStock(updatedStock);
+      localStorage.setItem('sneakerstore_stock', JSON.stringify(updatedStock));
+      
+      // Disparar evento personalizado para notificar a otros componentes
+      window.dispatchEvent(new CustomEvent('stockUpdated', { 
+        detail: { productId: editingProduct.id, newStock: newStock }
+      }));
     }
     setShowModal(false);
     setEditingProduct(null);
@@ -55,41 +89,92 @@ function Admin() {
       </div>
 
       <Alert variant="info">
-        Gestiona el inventario y precios de los productos
+        Gestiona el inventario, precios de los productos y usuarios registrados
       </Alert>
 
-      <Table responsive striped bordered hover>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Producto</th>
-            <th>Marca</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>{product.id}</td>
-              <td>{product.name}</td>
-              <td>{product.brand}</td>
-              <td>{formatPrice(product.price)}</td>
-              <td>{product.stock}</td>
-              <td>
-                <Button 
-                  size="sm" 
-                  variant="primary"
-                  onClick={() => handleEdit(product)}
-                >
-                  Editar
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <Tabs defaultActiveKey="products" className="mb-3">
+        <Tab eventKey="products" title="Productos">
+          <Table responsive striped bordered hover>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Marca</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product.id}>
+                  <td>{product.id}</td>
+                  <td>{product.name}</td>
+                  <td>{product.brand}</td>
+                  <td>{formatPrice(product.price)}</td>
+                  <td>{product.stock}</td>
+                  <td>
+                    <Button 
+                      size="sm" 
+                      variant="primary"
+                      onClick={() => handleEdit(product)}
+                    >
+                      Editar
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Tab>
+
+        <Tab eventKey="users" title="Usuarios Registrados">
+          <Table responsive striped bordered hover>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Tipo</th>
+                <th>Fecha de Registro</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center text-muted">
+                    No hay usuarios registrados
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span className={`badge bg-${user.type === 'admin' ? 'danger' : 'primary'}`}>
+                        {user.type}
+                      </span>
+                    </td>
+                    <td>
+                      {user.registeredAt 
+                        ? new Date(user.registeredAt).toLocaleDateString('es-CL', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : 'N/A'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+        </Tab>
+      </Tabs>
 
       <Modal show={showModal} onHide={handleClose}>
         <Modal.Header closeButton>
