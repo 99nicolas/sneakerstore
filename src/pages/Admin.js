@@ -62,10 +62,10 @@ function Admin() {
           : p
       ));
       
-      // Guardar el stock en localStorage
-      const updatedStock = { ...stock, [editingProduct.id]: newStock };
+      // Guardar el stock usando la función utilitaria
+      localStorageUtils.setStock(editingProduct.id, newStock);
+      const updatedStock = localStorageUtils.getStock();
       setStock(updatedStock);
-      localStorage.setItem('sneakerstore_stock', JSON.stringify(updatedStock));
       
       // Disparar evento personalizado para notificar a otros componentes
       window.dispatchEvent(new CustomEvent('stockUpdated', { 
