@@ -1,5 +1,6 @@
-// Utilidades para manejar el almacenamiento local
-// Maneja usuarios registrados, historial de compras y stock de productos
+// Utilidades para manejar el almacenamiento local (localStorage)
+// Este archivo tiene funciones para guardar y cargar datos del navegador
+// como usuarios, compras, stock y carrito de compras
 
 const STORAGE_KEYS = {
   USERS: 'sneakerstore_users',
@@ -12,7 +13,7 @@ const STORAGE_KEYS = {
 // ===== MANEJO DE USUARIOS =====
 
 /**
- * Obtiene todos los usuarios registrados
+ * Obtiene todos los usuarios registrados del localStorage
  */
 export const getUsers = () => {
   try {
@@ -25,7 +26,7 @@ export const getUsers = () => {
 };
 
 /**
- * Guarda un nuevo usuario
+ * Guarda un nuevo usuario en localStorage
  */
 export const saveUser = (user) => {
   try {
@@ -51,7 +52,7 @@ export const saveUser = (user) => {
 };
 
 /**
- * Valida las credenciales de un usuario
+ * Valida las credenciales de un usuario (verifica email y contraseña)
  */
 export const validateUser = (email, password) => {
   try {
@@ -65,7 +66,7 @@ export const validateUser = (email, password) => {
 };
 
 /**
- * Guarda el usuario actual en sesión
+ * Guarda el usuario actual en la sesión (cuando inicia sesión)
  */
 export const setCurrentUser = (user) => {
   try {
@@ -76,7 +77,7 @@ export const setCurrentUser = (user) => {
 };
 
 /**
- * Obtiene el usuario actual en sesión
+ * Obtiene el usuario actual que tiene la sesión iniciada
  */
 export const getCurrentUser = () => {
   try {
@@ -89,7 +90,7 @@ export const getCurrentUser = () => {
 };
 
 /**
- * Cierra la sesión del usuario actual
+ * Cierra la sesión del usuario actual (logout)
  */
 export const clearCurrentUser = () => {
   try {
@@ -102,7 +103,7 @@ export const clearCurrentUser = () => {
 // ===== MANEJO DE STOCK =====
 
 /**
- * Inicializa el stock con los datos iniciales de productos
+ * Inicializa el stock de productos por primera vez
  */
 export const initializeStock = (initialSneakers) => {
   try {
@@ -133,7 +134,7 @@ export const getStock = () => {
 };
 
 /**
- * Actualiza el stock de un producto
+ * Actualiza el stock de un producto (suma o resta cantidad)
  */
 export const updateStock = (productId, quantity) => {
   try {
@@ -151,7 +152,7 @@ export const updateStock = (productId, quantity) => {
 };
 
 /**
- * Establece el stock de un producto a un valor específico
+ * Cambia el stock de un producto a un valor específico
  */
 export const setStock = (productId, newStock) => {
   try {
@@ -166,14 +167,15 @@ export const setStock = (productId, newStock) => {
 };
 
 /**
- * Reduce el stock basado en los items del carrito
+ * Reduce el stock cuando se completa una compra
+ * Recibe los items del carrito y reduce el stock de cada uno
  */
 export const reduceStockFromCart = (cartItems) => {
   try {
     const stock = getStock();
     const updates = [];
     
-    // Verificar disponibilidad antes de reducir
+    // Verifica que haya suficiente stock antes de reducir
     for (const item of cartItems) {
       if (stock[item.id] === undefined || stock[item.id] < item.quantity) {
         return { 
@@ -183,7 +185,7 @@ export const reduceStockFromCart = (cartItems) => {
       }
     }
     
-    // Reducir stock
+    // Si todo está bien, reduce el stock de cada producto
     for (const item of cartItems) {
       stock[item.id] -= item.quantity;
       updates.push({ id: item.id, newStock: stock[item.id] });
@@ -213,7 +215,7 @@ export const getPurchases = () => {
 };
 
 /**
- * Guarda una nueva compra
+ * Guarda una nueva compra en localStorage
  */
 export const savePurchase = (purchaseData) => {
   try {
@@ -234,7 +236,7 @@ export const savePurchase = (purchaseData) => {
 };
 
 /**
- * Obtiene las compras de un usuario específico
+ * Obtiene solo las compras de un usuario específico
  */
 export const getUserPurchases = (userEmail) => {
   try {
@@ -249,7 +251,7 @@ export const getUserPurchases = (userEmail) => {
 // ===== MANEJO DE CARRITO =====
 
 /**
- * Guarda el carrito actual
+ * Guarda el carrito actual en localStorage
  */
 export const saveCart = (cart) => {
   try {
@@ -260,7 +262,7 @@ export const saveCart = (cart) => {
 };
 
 /**
- * Obtiene el carrito guardado
+ * Obtiene el carrito guardado en localStorage
  */
 export const getCart = () => {
   try {
@@ -273,7 +275,7 @@ export const getCart = () => {
 };
 
 /**
- * Limpia el carrito
+ * Limpia el carrito (lo vacía completamente)
  */
 export const clearCart = () => {
   try {
@@ -286,7 +288,8 @@ export const clearCart = () => {
 // ===== UTILIDADES GENERALES =====
 
 /**
- * Limpia todos los datos del local storage (útil para desarrollo/testing)
+ * Limpia todos los datos del localStorage
+ * Útil para desarrollo y testing
  */
 export const clearAllData = () => {
   try {
