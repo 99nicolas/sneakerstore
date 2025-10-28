@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Button, Badge, Card, ListGroup } from 'react-bootstrap';
 import { formatPrice } from '../utils/formatPrice';
 
 // Componente de detalles del producto
-function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} }) {
+// Muestra toda la información detallada de un producto específico
+function ProductDetail({ onAddToCart, onBack, sneakers, stock = {} }) {
+  // Obtiene el ID del producto desde la URL
+  const { id } = useParams();
+  const productId = parseInt(id);
+  
+  // Busca el producto en la lista de sneakers
   const baseProduct = sneakers.find(s => s.id === productId);
+  
+  // Estado para la talla seleccionada por el usuario
   const [selectedSize, setSelectedSize] = useState('');
 
-  // Combinar producto con stock actual
+  // Combina los datos del producto con el stock actualizado
   const product = baseProduct ? {
     ...baseProduct,
     stock: stock[baseProduct.id] !== undefined ? stock[baseProduct.id] : baseProduct.stock
   } : null;
 
+  // Si el producto no existe, muestra mensaje de error
   if (!product) {
     return (
       <Container>
@@ -24,9 +34,11 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
     );
   }
 
+  // Función para agregar el producto al carrito
   const handleAddToCart = () => {
     if (selectedSize) {
-      onAddToCart(product);
+      // Solo agrega si se seleccionó una talla
+      onAddToCart({ ...product, selectedSize });
     } else {
       alert('Por favor selecciona una talla');
     }
@@ -34,11 +46,13 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
 
   return (
     <Container>
+      {/* Botón para volver a la tienda */}
       <Button variant="outline-secondary" onClick={onBack} className="mb-4">
         ← Volver a la tienda
       </Button>
       
       <Row>
+        {/* Columna izquierda: imagen del producto */}
         <Col md={6} className="mb-4">
           <img 
             src={product.image} 
@@ -48,7 +62,9 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
           />
         </Col>
         
+        {/* Columna derecha: información del producto */}
         <Col md={6}>
+          {/* Badges de marca y disponibilidad */}
           <div className="mb-2">
             <Badge bg="secondary" className="me-2">{product.brand}</Badge>
             {product.stock > 0 ? (
@@ -58,10 +74,13 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
             )}
           </div>
           
+          {/* Nombre del producto */}
           <h1 className="mb-3">{product.name}</h1>
           
+          {/* Precio */}
           <h2 className="text-primary mb-4">{formatPrice(product.price)}</h2>
           
+          {/* Tarjeta de descripción */}
           <Card className="mb-4">
             <Card.Body>
               <Card.Title>Descripción</Card.Title>
@@ -69,6 +88,7 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
             </Card.Body>
           </Card>
           
+          {/* Tarjeta de detalles */}
           <Card className="mb-4">
             <Card.Body>
               <Card.Title>Detalles del Producto</Card.Title>
@@ -86,6 +106,7 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
             </Card.Body>
           </Card>
           
+          {/* Selector de tallas */}
           <div className="mb-4">
             <h5 className="mb-3">Selecciona tu talla:</h5>
             <div className="d-flex flex-wrap gap-2">
@@ -102,6 +123,7 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
             </div>
           </div>
           
+          {/* Botón para agregar al carrito */}
           <div className="d-grid gap-2">
             <Button 
               variant="primary" 
@@ -113,6 +135,7 @@ function ProductDetail({ productId, onAddToCart, onBack, sneakers, stock = {} })
             </Button>
           </div>
           
+          {/* Información de envío */}
           <Card className="mt-4 bg-light">
             <Card.Body>
               <h6>🚚 Envío Gratis</h6>

@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -11,45 +12,53 @@ import CheckoutFailure from './pages/CheckoutFailure';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import AdminLogin from './pages/AdminLogin';
 import Blog from './pages/Blog';
 import About from './pages/About';
 import ProductDetail from './pages/ProductDetail';
 import sneakersData from './data/sneakers';
 import * as localStorageUtils from './utils/localStorage';
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+// Componente principal de la aplicación
+// Maneja el estado global del carrito, usuario, y productos
+function AppContent() {
+  // Estado del carrito de compras (lista de productos agregados)
   const [cart, setCart] = useState([]);
+  // Estado del usuario actual (null si no está logueado)
   const [user, setUser] = useState(null);
-  const [selectedProductId, setSelectedProductId] = useState(null);
+  // Estado con información de la orden después del checkout
   const [orderData, setOrderData] = useState(null);
+  // Estado para errores en el checkout
   const [checkoutError, setCheckoutError] = useState(null);
+  // Estado del inventario/stock de productos
   const [stock, setStock] = useState({});
-  // Estado para el toast de notificación
+  // Estado para mostrar notificación tipo toast
   const [showToast, setShowToast] = useState(false);
+  // Mensaje que se muestra en el toast
   const [toastMessage, setToastMessage] = useState('');
+  // Hook de react-router para navegación programática
+  const navigate = useNavigate();
 
-  // Inicializar datos del local storage al montar el componente
+  // Hook que se ejecuta una vez al cargar el componente
+  // Inicializa datos desde localStorage
   useEffect(() => {
-    // Inicializar stock si no existe
+    // Inicializar stock si no existe en localStorage
     localStorageUtils.initializeStock(sneakersData);
     
-    // Cargar stock actual
+    // Cargar stock actual desde localStorage
     const currentStock = localStorageUtils.getStock();
     setStock(currentStock);
     
-    // Cargar carrito guardado
+    // Cargar carrito guardado en localStorage
     const savedCart = localStorageUtils.getCart();
     setCart(savedCart);
     
-    // Cargar usuario actual si existe
+    // Cargar usuario actual si existe una sesión activa
     const currentUser = localStorageUtils.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
     }
 
-    // Escuchar actualizaciones de stock desde el panel de admin
+    // Escuchar evento personalizado cuando se actualiza el stock desde el admin
     const handleStockUpdate = () => {
       const updatedStock = localStorageUtils.getStock();
       setStock(updatedStock);
@@ -57,18 +66,18 @@ export default function App() {
 
     window.addEventListener('stockUpdated', handleStockUpdate);
 
-    // Cleanup
+    // Limpieza: remover el listener cuando el componente se desmonte
     return () => {
       window.removeEventListener('stockUpdated', handleStockUpdate);
     };
   }, []);
 
-  // Guardar carrito en local storage cada vez que cambie
+  // Hook que guarda el carrito en localStorage cada vez que cambia
   useEffect(() => {
     localStorageUtils.saveCart(cart);
   }, [cart]);
 
-  // Función para manejar agregar productos al carrito
+  // Función para agregar productos al carrito
   const handleAddToCart = (sneaker) => {
     const existingItem = cart.find(item => item.id === sneaker.id);
     
@@ -89,8 +98,10 @@ export default function App() {
     // Mostrar notificación toast
     setShowToast(true);
   };
+
+  // Función para actualizar la cantidad de un producto en el carrito
   const handleUpdateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
+    if (newQuantity < 1) return; // No permite cantidades menores a 1
     setCart(cart.map(item => 
       item.id === id 
         ? { ...item, quantity: newQuantity }
@@ -98,152 +109,157 @@ export default function App() {
     ));
   };
 
-  // Función para eliminar producto del carrito
+  // Función para eliminar un producto del carrito
   const handleRemoveItem = (id) => {
     setCart(cart.filter(item => item.id !== id));
   };
 
-  // Calcular cantidad total de items en el carrito
+  // Calcula el número total de items en el carrito
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Función para manejar el login
+  // Función que se ejecuta cuando un usuario inicia sesión
   const handleLogin = (userData) => {
     setUser(userData);
     localStorageUtils.setCurrentUser(userData);
   };
 
-  // Función para manejar el logout
+  // Función que se ejecuta cuando un usuario cierra sesión
   const handleLogout = () => {
     setUser(null);
     localStorageUtils.clearCurrentUser();
-    setCurrentPage('home');
+    navigate('/'); // Redirige a la página de inicio
   };
 
-  // Función para ver detalles de un producto
+  // Función para ver los detalles de un producto específico
   const handleViewDetails = (productId) => {
-    setSelectedProductId(productId);
-    setCurrentPage('productDetail');
+    navigate(`/product/${productId}`);
   };
 
-  // Función para volver desde la página de detalles
+  // Función para volver desde la página de detalles de producto
   const handleBackFromDetail = () => {
-    setSelectedProductId(null);
-    setCurrentPage('home');
+    navigate('/');
   };
 
-  // Función para manejar la navegación
-  const handleNavigate = (page) => {
-    // Proteger la página de admin
-    if (page === 'admin' && (!user || user.type !== 'admin')) {
-      setCurrentPage('adminLogin');
-      return;
-    }
-    setCurrentPage(page);
-  };
-
-  // Función para manejar la finalización del checkout
+  // Función para manejar la finalización del proceso de checkout
   const handleCheckoutComplete = (status, data) => {
     if (status === 'success') {
-      // Guardar compra en local storage
+      // Guarda la compra en localStorage
       localStorageUtils.savePurchase({
         ...data,
         cart: cart,
         userId: user?.email || data.email
       });
       
-      // Reducir stock de productos comprados
+      // Reduce el stock de los productos comprados
       const stockResult = localStorageUtils.reduceStockFromCart(cart);
       if (stockResult.success) {
-        // Actualizar estado del stock
+        // Actualiza el estado del stock
         setStock(localStorageUtils.getStock());
       }
       
       setOrderData(data);
-      setCart([]); // Limpiar carrito después de una compra exitosa
+      setCart([]); // Limpia el carrito
       localStorageUtils.clearCart();
-      setCurrentPage('checkoutSuccess');
+      navigate('/checkout/success'); // Redirige a página de éxito
     } else {
+      // Si hay error, guarda el error y redirige a página de error
       setCheckoutError(data);
-      setCurrentPage('checkoutFailure');
+      navigate('/checkout/failure');
     }
   };
 
-  // Función para reintentar checkout
+  // Función para reintentar el checkout después de un error
   const handleRetryCheckout = () => {
     setCheckoutError(null);
-    setCurrentPage('checkout');
+    navigate('/checkout');
   };
 
   return (
     <div className="App d-flex flex-column min-vh-100">
+      {/* Barra de navegación superior */}
       <Navigation 
         cartCount={cartCount}
-        onNavigate={handleNavigate}
-        currentPage={currentPage}
         user={user}
         onLogout={handleLogout}
       />
       
+      {/* Contenedor principal con todas las rutas de la aplicación */}
       <div className="py-4 flex-grow-1">
-        {currentPage === 'home' && (
-          <Home 
-            onAddToCart={handleAddToCart} 
-            onViewDetails={handleViewDetails}
-            stock={stock}
-          />
-        )}
-        {currentPage === 'productDetail' && (
-          <ProductDetail 
-            productId={selectedProductId}
-            onAddToCart={handleAddToCart}
-            onBack={handleBackFromDetail}
-            sneakers={sneakersData}
-            stock={stock}
-          />
-        )}
-        {currentPage === 'cart' && (
-          <Cart 
-            cart={cart}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemoveItem={handleRemoveItem}
-            onNavigate={handleNavigate}
-          />
-        )}
-        {currentPage === 'checkout' && (
-          <Checkout 
-            cart={cart}
-            onCheckoutComplete={handleCheckoutComplete}
-            onNavigate={handleNavigate}
-          />
-        )}
-        {currentPage === 'checkoutSuccess' && (
-          <CheckoutSuccess 
-            orderData={orderData}
-            onNavigate={handleNavigate}
-          />
-        )}
-        {currentPage === 'checkoutFailure' && (
-          <CheckoutFailure 
-            errorData={checkoutError}
-            onNavigate={handleNavigate}
-            onRetry={handleRetryCheckout}
-          />
-        )}
-        {currentPage === 'blog' && <Blog />}
-        {currentPage === 'about' && <About />}
-        {currentPage === 'login' && (
-          <Login onLogin={handleLogin} onNavigate={setCurrentPage} />
-        )}
-        {currentPage === 'register' && (
-          <Register onRegister={handleLogin} onNavigate={setCurrentPage} />
-        )}
-        {currentPage === 'adminLogin' && (
-          <AdminLogin onLogin={handleLogin} onNavigate={setCurrentPage} />
-        )}
-        {currentPage === 'admin' && user && user.type === 'admin' && <Admin />}
+        <Routes>
+          {/* Ruta principal: muestra el catálogo de productos */}
+          <Route path="/" element={
+            <Home 
+              onAddToCart={handleAddToCart} 
+              onViewDetails={handleViewDetails}
+              stock={stock}
+            />
+          } />
+          
+          {/* Ruta para ver detalles de un producto específico */}
+          <Route path="/product/:id" element={
+            <ProductDetail 
+              onAddToCart={handleAddToCart}
+              onBack={handleBackFromDetail}
+              sneakers={sneakersData}
+              stock={stock}
+            />
+          } />
+          
+          {/* Ruta del carrito de compras */}
+          <Route path="/cart" element={
+            <Cart 
+              cart={cart}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemoveItem={handleRemoveItem}
+            />
+          } />
+          
+          {/* Ruta del checkout (finalizar compra) */}
+          <Route path="/checkout" element={
+            <Checkout 
+              cart={cart}
+              onCheckoutComplete={handleCheckoutComplete}
+            />
+          } />
+          
+          {/* Ruta de compra exitosa */}
+          <Route path="/checkout/success" element={
+            <CheckoutSuccess orderData={orderData} />
+          } />
+          
+          {/* Ruta de error en la compra */}
+          <Route path="/checkout/failure" element={
+            <CheckoutFailure 
+              errorData={checkoutError}
+              onRetry={handleRetryCheckout}
+            />
+          } />
+          
+          {/* Ruta del blog */}
+          <Route path="/blog" element={<Blog />} />
+          
+          {/* Ruta de "Sobre Nosotros" */}
+          <Route path="/about" element={<About />} />
+          
+          {/* Ruta de login (unificado para usuarios y admins) */}
+          <Route path="/login" element={
+            <Login onLogin={handleLogin} onNavigate={(page) => navigate('/' + page)} />
+          } />
+          
+          {/* Ruta de registro de nuevos usuarios */}
+          <Route path="/register" element={
+            <Register onRegister={handleLogin} onNavigate={(page) => navigate('/' + page)} />
+          } />
+          
+          {/* Ruta del panel de administración (protegida) */}
+          <Route path="/admin" element={
+            // Si el usuario es admin, muestra el panel, si no, redirige al login
+            user && user.type === 'admin' ? <Admin /> : <Navigate to="/login" replace />
+          } />
+        </Routes>
       </div>
       
-      {/* Toast de notificación para agregar al carrito */}
+      {/* Notificación toast para cuando se agrega un producto al carrito */}
       <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
         <Toast 
           show={showToast} 
@@ -259,8 +275,18 @@ export default function App() {
         </Toast>
       </ToastContainer>
       
-      <Footer onNavigate={handleNavigate} />
+      {/* Pie de página */}
+      <Footer />
     </div>
+  );
+}
+
+// Componente wrapper que provee el Router
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 
