@@ -1,7 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Card, Button, Alert, Row, Col } from 'react-bootstrap';
 
-function CheckoutFailure({ errorData, onNavigate, onRetry }) {
+// Componente que se muestra cuando el pago falla
+// Muestra el error y opciones para reintentar o volver
+function CheckoutFailure({ errorData, onRetry }) {
+  // Hook para navegar a otras páginas
+  const navigate = useNavigate();
+  
+  // Obtiene el motivo del error o usa un mensaje por defecto
   const reason = errorData?.reason || 'Hubo un problema al procesar tu pago';
 
   return (
@@ -10,6 +17,7 @@ function CheckoutFailure({ errorData, onNavigate, onRetry }) {
         <Col md={8} lg={6}>
           <Card className="text-center shadow">
             <Card.Body className="p-5">
+              {/* Icono de error */}
               <div className="mb-4">
                 <div 
                   style={{ 
@@ -26,11 +34,13 @@ function CheckoutFailure({ errorData, onNavigate, onRetry }) {
                 </p>
               </div>
 
+              {/* Mensaje de error */}
               <Alert variant="danger" className="text-start">
                 <strong>Motivo:</strong>
                 <p className="mb-0 mt-2">{reason}</p>
               </Alert>
 
+              {/* Sugerencias para el usuario */}
               <Card className="mb-4 bg-light">
                 <Card.Body className="text-start">
                   <h5 className="mb-3">¿Qué puedes hacer?</h5>
@@ -43,6 +53,7 @@ function CheckoutFailure({ errorData, onNavigate, onRetry }) {
                 </Card.Body>
               </Card>
 
+              {/* Botones de acción */}
               <div className="d-grid gap-2">
                 <Button 
                   variant="danger" 
@@ -53,18 +64,19 @@ function CheckoutFailure({ errorData, onNavigate, onRetry }) {
                 </Button>
                 <Button 
                   variant="outline-secondary"
-                  onClick={() => onNavigate('cart')}
+                  onClick={() => navigate('/cart')}
                 >
                   Volver al Carrito
                 </Button>
                 <Button 
                   variant="outline-primary"
-                  onClick={() => onNavigate('home')}
+                  onClick={() => navigate('/')}
                 >
                   Continuar Comprando
                 </Button>
               </div>
 
+              {/* Información de soporte */}
               <div className="mt-4 text-muted">
                 <small>
                   ¿Necesitas ayuda? Contacta con nuestro soporte: 

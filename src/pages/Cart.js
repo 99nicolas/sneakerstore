@@ -1,12 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Table, Button, Alert, Card, Row, Col } from 'react-bootstrap';
 import { formatPrice } from '../utils/formatPrice';
 
 // Componente del carrito de compras
-function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
-  // Calcular el total del carrito
+// Muestra los productos agregados y permite modificar cantidades
+function Cart({ cart, onUpdateQuantity, onRemoveItem }) {
+  // Hook para navegar a otras páginas
+  const navigate = useNavigate();
+  
+  // Calcula el total sumando precio x cantidad de cada producto
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+  // Si el carrito está vacío, muestra un mensaje
   if (cart.length === 0) {
     return (
       <Container>
@@ -22,7 +28,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
     <Container>
       <h2 className="mb-4">Carrito de Compras</h2>
       
-      {/* Desktop view - Table */}
+      {/* Vista para pantallas grandes - Tabla */}
       <div className="d-none d-lg-block">
         <Table responsive striped bordered hover>
           <thead>
@@ -53,6 +59,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
                 </td>
                 <td>{formatPrice(item.price)}</td>
                 <td>
+                  {/* Botones para aumentar/disminuir cantidad */}
                   <div className="d-flex align-items-center">
                     <Button 
                       size="sm" 
@@ -89,7 +96,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
         </Table>
       </div>
 
-      {/* Mobile view - Cards */}
+      {/* Vista para móviles - Tarjetas */}
       <div className="d-lg-none">
         {cart.map((item) => (
           <Card key={item.id} className="mb-3">
@@ -144,13 +151,14 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem, onNavigate }) {
         ))}
       </div>
       
+      {/* Total y botón para proceder al pago */}
       <div className="text-end">
         <h3>Total: {formatPrice(total)}</h3>
         <Button 
           variant="success" 
           size="lg" 
           className="mt-3"
-          onClick={() => onNavigate('checkout')}
+          onClick={() => navigate('/checkout')}
         >
           Proceder al Pago
         </Button>
