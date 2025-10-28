@@ -30,7 +30,7 @@ function Login({ onLogin, onNavigate }) {
     if (result.success) {
       // Si el usuario existe en localStorage, inicia sesión como usuario normal
       onLogin({ email: result.user.email, name: result.user.name, type: 'user' });
-      onNavigate('home');
+      onNavigate('');
       return;
     }
     
@@ -38,7 +38,7 @@ function Login({ onLogin, onNavigate }) {
     // Usuario normal demo
     if (formData.email === 'usuario@ejemplo.com' && formData.password === 'usuario123') {
       onLogin({ email: formData.email, type: 'user' });
-      onNavigate('home');
+      onNavigate('');
       return;
     }
     

@@ -50,7 +50,7 @@ function Register({ onRegister, onNavigate }) {
     setSuccess(true);
     setTimeout(() => {
       onRegister({ email: formData.email, name: formData.name, type: 'user' });
-      onNavigate('home');
+      onNavigate('');
     }, 1500);
   };
 
