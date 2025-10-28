@@ -33,10 +33,10 @@ const sneakers = [
   },
   {
     id: 4,
-    name: "Classic Suede",
+    name: "Classic Suede XL",
     brand: "Puma",
     price: 80990, // Precio en CLP
-    image: "https://via.placeholder.com/300x200/FFD700/000000?text=Classic+Suede",
+    image: "https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/396578/02/fnd/CHL/w/1000/h/1000/fmt/png",
     description: "Zapatillas de ante clásicas y elegantes",
     size: [7, 8, 9, 10, 11, 12],
     stock: 12
@@ -46,7 +46,7 @@ const sneakers = [
     name: "990v5",
     brand: "New Balance",
     price: 161990, // Precio en CLP
-    image: "https://via.placeholder.com/300x200/808080/FFFFFF?text=990v5",
+    image: "https://cdn-images.farfetch-contents.com/14/10/56/33/14105633_33204598_1000.jpg",
     description: "Rendimiento premium con estilo retro",
     size: [7, 8, 9, 10, 11, 12, 13],
     stock: 8
@@ -56,7 +56,7 @@ const sneakers = [
     name: "Old Skool",
     brand: "Vans",
     price: 67490, // Precio en CLP
-    image: "https://via.placeholder.com/300x200/DC143C/FFFFFF?text=Old+Skool",
+    image: "https://cdn-images.farfetch-contents.com/25/25/55/72/25255572_55353963_600.jpg",
     description: "Zapatillas skate clásicas con diseño icónico",
     size: [6, 7, 8, 9, 10, 11, 12],
     stock: 25
