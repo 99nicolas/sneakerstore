@@ -53,3 +53,13 @@ export async function actualizarZapatilla(zapatilla, datosFormulario) {
   }
   return res.json();
 }
+
+// Eliminar una zapatilla por id
+export async function eliminarZapatilla(id) {
+  const res = await fetch(`${API_URL}/api/sneakers/${id}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) {
+    throw new Error('Error al eliminar la zapatilla en el backend');
+  }
+}

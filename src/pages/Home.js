@@ -1,88 +1,100 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
 import SneakerCard from '../components/SneakerCard';
-import sneakersData from '../data/sneakers';
 
 // Componente de la página principal
-function Home({ onAddToCart, onViewDetails, stock = {} }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterBrand, setFilterBrand] = useState('');
+// Ahora recibe 'zapatillas' desde App (vienen del backend)
+function Home({ onAddToCart, onViewDetails, stock = {}, zapatillas = [] }) {
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  const [filtroMarca, setFiltroMarca] = useState('');
 
   // Obtener marcas únicas para el filtro
-  const brands = ['Todas', ...new Set(sneakersData.map(s => s.brand))];
+  const marcas = ['Todas', ...new Set(zapatillas.map(z => z.marca).filter(Boolean))];
 
-  // Combinar datos de zapatillas con stock actual
-  const sneakersWithStock = sneakersData.map(sneaker => ({
-    ...sneaker,
-    stock: stock[sneaker.id] !== undefined ? stock[sneaker.id] : sneaker.stock
+  // Combinar datos de zapatillas con stock actual (si usas estado extra de stock)
+  const zapatillasConStock = zapatillas.map(zapatilla => ({
+    ...zapatilla,
+    stock: stock[zapatilla.id] !== undefined ? stock[zapatilla.id] : zapatilla.stock
   }));
 
   // Filtrar zapatillas basado en búsqueda y marca
-  const filteredSneakers = sneakersWithStock.filter(sneaker => {
-    const matchesSearch = sneaker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          sneaker.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          sneaker.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBrand = !filterBrand || filterBrand === 'Todas' || sneaker.brand === filterBrand;
-    return matchesSearch && matchesBrand;
+  const zapatillasFiltradas = zapatillasConStock.filter(zapatilla => {
+    const texto = terminoBusqueda.toLowerCase();
+    const coincideBusqueda =
+        (zapatilla.modelo || '').toLowerCase().includes(texto) ||
+        (zapatilla.marca || '').toLowerCase().includes(texto) ||
+        (zapatilla.color || '').toLowerCase().includes(texto);
+
+    const coincideMarca =
+        !filtroMarca || filtroMarca === 'Todas' || zapatilla.marca === filtroMarca;
+
+    return coincideBusqueda && coincideMarca;
   });
 
   return (
-    <Container>
-      <div className="text-center mb-5">
-        <h1 className="display-4 fw-bold mb-3">Bienvenido a Sneaker Store</h1>
-        <p className="lead text-muted">Encuentra las mejores zapatillas para tu estilo</p>
-      </div>
-
-      {/* Sección de búsqueda y filtro */}
-      <Row className="mb-4">
-        <Col md={8} className="mx-auto">
-          <InputGroup className="mb-3">
-            <InputGroup.Text>🔍</InputGroup.Text>
-            <Form.Control
-              type="text"
-              placeholder="Buscar zapatillas por nombre, marca o descripción..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </InputGroup>
-        </Col>
-      </Row>
-
-      <Row className="mb-4">
-        <Col md={4} className="mx-auto">
-          <Form.Select 
-            value={filterBrand} 
-            onChange={(e) => setFilterBrand(e.target.value)}
-            aria-label="Filtrar por marca"
-          >
-            {brands.map(brand => (
-              <option key={brand} value={brand}>
-                {brand === 'Todas' ? 'Todas las marcas' : brand}
-              </option>
-            ))}
-          </Form.Select>
-        </Col>
-      </Row>
-
-      {filteredSneakers.length === 0 ? (
-        <div className="text-center py-5">
-          <h4 className="text-muted">No se encontraron productos</h4>
-          <p>Intenta con otros términos de búsqueda</p>
+      <Container>
+        <div className="text-center mb-5">
+          <h1 className="display-4 fw-bold mb-3">Bienvenido a Sneaker Store</h1>
+          <p className="lead text-muted">Encuentra las mejores zapatillas para tu estilo</p>
         </div>
-      ) : (
-        <Row xs={1} md={2} lg={3} className="g-4">
-          {filteredSneakers.map((sneaker) => (
-            <Col key={sneaker.id}>
-              <SneakerCard 
-                sneaker={sneaker} 
-                onAddToCart={onAddToCart}
-                onViewDetails={onViewDetails}
+
+        {/* Sección de búsqueda y filtro */}
+        <Row className="mb-4">
+          <Col md={8} className="mx-auto">
+            <InputGroup className="mb-3">
+              <InputGroup.Text>🔍</InputGroup.Text>
+              <Form.Control
+                  type="text"
+                  placeholder="Buscar zapatillas por modelo, marca o color..."
+                  value={terminoBusqueda}
+                  onChange={(e) => setTerminoBusqueda(e.target.value)}
               />
-            </Col>
-          ))}
+            </InputGroup>
+          </Col>
         </Row>
-      )}
-    </Container>
+
+        <Row className="mb-4">
+          <Col md={4} className="mx-auto">
+            <Form.Select
+                value={filtroMarca}
+                onChange={(e) => setFiltroMarca(e.target.value)}
+                aria-label="Filtrar por marca"
+            >
+              {marcas.map(marca => (
+                  <option key={marca} value={marca}>
+                    {marca === 'Todas' ? 'Todas las marcas' : marca}
+                  </option>
+              ))}
+            </Form.Select>
+          </Col>
+        </Row>
+
+        {zapatillasFiltradas.length === 0 ? (
+            <div className="text-center py-5">
+              <h4 className="text-muted">No se encontraron productos</h4>
+              <p>Intenta con otros términos de búsqueda</p>
+            </div>
+        ) : (
+            <Row xs={1} md={2} lg={3} className="g-4">
+              {zapatillasFiltradas.map((z) => (
+                  <Col key={z.id}>
+                    <SneakerCard
+                        sneaker={{
+                          id: z.id,
+                          name: z.modelo,     // SneakerCard espera name/brand/price
+                          brand: z.marca,
+                          price: z.precio,
+                          stock: z.stock,
+                          // si SneakerCard usa más props (imagen, descripción), se pueden mapear aquí
+                        }}
+                        onAddToCart={onAddToCart}
+                        onViewDetails={onViewDetails}
+                    />
+                  </Col>
+              ))}
+            </Row>
+        )}
+      </Container>
   );
 }
 

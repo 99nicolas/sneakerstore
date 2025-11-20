@@ -15,8 +15,8 @@ import Register from './pages/Register';
 import Blog from './pages/Blog';
 import About from './pages/About';
 import ProductDetail from './pages/ProductDetail';
-import sneakersData from './data/sneakers';
 import * as localStorageUtils from './utils/localStorage';
+import { obtenerZapatillas } from './api/products';
 
 // Componente principal de la aplicación
 // Maneja el estado global del carrito, usuario, y productos
@@ -29,8 +29,12 @@ function AppContent() {
   const [orderData, setOrderData] = useState(null);
   // Estado para errores en el checkout
   const [checkoutError, setCheckoutError] = useState(null);
-  // Estado del inventario/stock de productos
+  // Estado del inventario/stock de productos (mapa id -> stock)
   const [stock, setStock] = useState({});
+  // Estado de las zapatillas que vienen del backend
+  const [zapatillas, setZapatillas] = useState([]);
+  const [cargandoZapatillas, setCargandoZapatillas] = useState(true);
+  const [errorZapatillas, setErrorZapatillas] = useState(null);
   // Estado para mostrar notificación tipo toast
   const [showToast, setShowToast] = useState(false);
   // Mensaje que se muestra en el toast
@@ -39,27 +43,43 @@ function AppContent() {
   const navigate = useNavigate();
 
   // Hook que se ejecuta una vez al cargar el componente
-  // Inicializa datos desde localStorage
+  // Inicializa datos desde backend y localStorage
   useEffect(() => {
-    // Inicializar stock si no existe en localStorage
-    localStorageUtils.initializeStock(sneakersData);
-    
-    // Cargar stock actual desde localStorage
-    const currentStock = localStorageUtils.getStock();
-    setStock(currentStock);
-    
-    // Cargar carrito guardado en localStorage
+    // 1) Cargar zapatillas desde el backend
+    const cargarZapatillas = async () => {
+      try {
+        const data = await obtenerZapatillas();
+        setZapatillas(data);
+
+        // Crear un mapa de stock por id (opcional)
+        const stockInicial = {};
+        data.forEach((z) => {
+          stockInicial[z.id] = z.stock ?? 0;
+        });
+        setStock(stockInicial);
+      } catch (error) {
+        console.error(error);
+        setErrorZapatillas('No se pudieron cargar las zapatillas desde el servidor');
+      } finally {
+        setCargandoZapatillas(false);
+      }
+    };
+
+    cargarZapatillas();
+
+    // 2) Cargar carrito guardado en localStorage
     const savedCart = localStorageUtils.getCart();
     setCart(savedCart);
-    
-    // Cargar usuario actual si existe una sesión activa
+
+    // 3) Cargar usuario actual si existe una sesión activa
     const currentUser = localStorageUtils.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
     }
 
-    // Escuchar evento personalizado cuando se actualiza el stock desde el admin
+    // 4) Escuchar evento personalizado cuando se actualiza el stock desde el admin
     const handleStockUpdate = () => {
+      // Si decides seguir usando localStorage para stock adicional
       const updatedStock = localStorageUtils.getStock();
       setStock(updatedStock);
     };
@@ -80,12 +100,12 @@ function AppContent() {
   // Función para agregar productos al carrito
   const handleAddToCart = (sneaker) => {
     const existingItem = cart.find(item => item.id === sneaker.id);
-    
+
     if (existingItem) {
-      setCart(cart.map(item => 
-        item.id === sneaker.id 
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
+      setCart(cart.map(item =>
+          item.id === sneaker.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
       ));
       const sizeText = sneaker.selectedSize ? ` (Talla ${sneaker.selectedSize})` : '';
       setToastMessage(`Se agregó otra unidad de "${sneaker.name}"${sizeText} al carrito`);
@@ -94,7 +114,7 @@ function AppContent() {
       const sizeText = sneaker.selectedSize ? ` (Talla ${sneaker.selectedSize})` : '';
       setToastMessage(`"${sneaker.name}"${sizeText} fue agregado al carrito`);
     }
-    
+
     // Mostrar notificación toast
     setShowToast(true);
   };
@@ -102,10 +122,10 @@ function AppContent() {
   // Función para actualizar la cantidad de un producto en el carrito
   const handleUpdateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return; // No permite cantidades menores a 1
-    setCart(cart.map(item => 
-      item.id === id 
-        ? { ...item, quantity: newQuantity }
-        : item
+    setCart(cart.map(item =>
+        item.id === id
+            ? { ...item, quantity: newQuantity }
+            : item
     ));
   };
 
@@ -149,14 +169,13 @@ function AppContent() {
         cart: cart,
         userId: user?.email || data.email
       });
-      
-      // Reduce el stock de los productos comprados
+
+      // (Opcional) lógica de stock local; lo ideal es que el backend lo maneje
       const stockResult = localStorageUtils.reduceStockFromCart(cart);
       if (stockResult.success) {
-        // Actualiza el estado del stock
         setStock(localStorageUtils.getStock());
       }
-      
+
       setOrderData(data);
       setCart([]); // Limpia el carrito
       localStorageUtils.clearCart();
@@ -175,118 +194,125 @@ function AppContent() {
   };
 
   return (
-    <div className="App d-flex flex-column min-vh-100">
-      {/* Barra de navegación superior */}
-      <Navigation 
-        cartCount={cartCount}
-        user={user}
-        onLogout={handleLogout}
-      />
-      
-      {/* Contenedor principal con todas las rutas de la aplicación */}
-      <div className="py-4 flex-grow-1">
-        <Routes>
-          {/* Ruta principal: muestra el catálogo de productos */}
-          <Route path="/" element={
-            <Home 
-              onAddToCart={handleAddToCart} 
-              onViewDetails={handleViewDetails}
-              stock={stock}
-            />
-          } />
-          
-          {/* Ruta para ver detalles de un producto específico */}
-          <Route path="/product/:id" element={
-            <ProductDetail 
-              onAddToCart={handleAddToCart}
-              onBack={handleBackFromDetail}
-              sneakers={sneakersData}
-              stock={stock}
-            />
-          } />
-          
-          {/* Ruta del carrito de compras */}
-          <Route path="/cart" element={
-            <Cart 
-              cart={cart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveItem={handleRemoveItem}
-            />
-          } />
-          
-          {/* Ruta del checkout (finalizar compra) */}
-          <Route path="/checkout" element={
-            <Checkout 
-              cart={cart}
-              onCheckoutComplete={handleCheckoutComplete}
-            />
-          } />
-          
-          {/* Ruta de compra exitosa */}
-          <Route path="/checkout/success" element={
-            <CheckoutSuccess orderData={orderData} />
-          } />
-          
-          {/* Ruta de error en la compra */}
-          <Route path="/checkout/failure" element={
-            <CheckoutFailure 
-              errorData={checkoutError}
-              onRetry={handleRetryCheckout}
-            />
-          } />
-          
-          {/* Ruta del blog */}
-          <Route path="/blog" element={<Blog />} />
-          
-          {/* Ruta de "Sobre Nosotros" */}
-          <Route path="/about" element={<About />} />
-          
-          {/* Ruta de login (unificado para usuarios y admins) */}
-          <Route path="/login" element={
-            <Login onLogin={handleLogin} onNavigate={(page) => navigate('/' + page)} />
-          } />
-          
-          {/* Ruta de registro de nuevos usuarios */}
-          <Route path="/register" element={
-            <Register onRegister={handleLogin} onNavigate={(page) => navigate('/' + page)} />
-          } />
-          
-          {/* Ruta del panel de administración (protegida) */}
-          <Route path="/admin" element={
-            // Si el usuario es admin, muestra el panel, si no, redirige al login
-            user && user.type === 'admin' ? <Admin /> : <Navigate to="/login" replace />
-          } />
-        </Routes>
+      <div className="App d-flex flex-column min-vh-100">
+        {/* Barra de navegación superior */}
+        <Navigation
+            cartCount={cartCount}
+            user={user}
+            onLogout={handleLogout}
+        />
+
+        {/* Contenedor principal con todas las rutas de la aplicación */}
+        <div className="py-4 flex-grow-1">
+          <Routes>
+            {/* Ruta principal: muestra el catálogo de productos */}
+            <Route path="/" element={
+              <Home
+                  onAddToCart={handleAddToCart}
+                  onViewDetails={handleViewDetails}
+                  stock={stock}
+                  zapatillas={zapatillas}
+              />
+            } />
+
+            {/* Ruta para ver detalles de un producto específico */}
+            <Route path="/product/:id" element={
+              <ProductDetail
+                  onAddToCart={handleAddToCart}
+                  onBack={handleBackFromDetail}
+                  sneakers={zapatillas}
+                  stock={stock}
+              />
+            } />
+
+            {/* Ruta del carrito de compras */}
+            <Route path="/cart" element={
+              <Cart
+                  cart={cart}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onRemoveItem={handleRemoveItem}
+              />
+            } />
+
+            {/* Ruta del checkout (finalizar compra) */}
+            <Route path="/checkout" element={
+              <Checkout
+                  cart={cart}
+                  onCheckoutComplete={handleCheckoutComplete}
+              />
+            } />
+
+            {/* Ruta de compra exitosa */}
+            <Route path="/checkout/success" element={
+              <CheckoutSuccess orderData={orderData} />
+            } />
+
+            {/* Ruta de error en la compra */}
+            <Route path="/checkout/failure" element={
+              <CheckoutFailure
+                  errorData={checkoutError}
+                  onRetry={handleRetryCheckout}
+              />
+            } />
+
+            {/* Ruta del blog */}
+            <Route path="/blog" element={<Blog />} />
+
+            {/* Ruta de "Sobre Nosotros" */}
+            <Route path="/about" element={<About />} />
+
+            {/* Ruta de login (unificado para usuarios y admins) */}
+            <Route path="/login" element={
+              <Login onLogin={handleLogin} onNavigate={(page) => navigate('/' + page)} />
+            } />
+
+            {/* Ruta de registro de nuevos usuarios */}
+            <Route path="/register" element={
+              <Register onRegister={handleLogin} onNavigate={(page) => navigate('/' + page)} />
+            } />
+
+            {/* Ruta del panel de administración (protegida) */}
+            <Route path="/admin" element={
+              // Si el usuario es admin, muestra el panel, si no, redirige al login
+              user && user.type === 'admin' ? <Admin /> : <Navigate to="/login" replace />
+            } />
+          </Routes>
+
+          {/* Mostrar errores de carga de productos, si quieres, en alguna parte de la UI */}
+          {errorZapatillas && (
+              <div className="text-center text-danger mt-3">
+                {errorZapatillas}
+              </div>
+          )}
+        </div>
+
+        {/* Notificación toast para cuando se agrega un producto al carrito */}
+        <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
+          <Toast
+              show={showToast}
+              onClose={() => setShowToast(false)}
+              delay={3000}
+              autohide
+              bg="success"
+          >
+            <Toast.Header>
+              <strong className="me-auto">✓ Producto Agregado</strong>
+            </Toast.Header>
+            <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+          </Toast>
+        </ToastContainer>
+
+        {/* Pie de página */}
+        <Footer />
       </div>
-      
-      {/* Notificación toast para cuando se agrega un producto al carrito */}
-      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 9999 }}>
-        <Toast 
-          show={showToast} 
-          onClose={() => setShowToast(false)} 
-          delay={3000} 
-          autohide
-          bg="success"
-        >
-          <Toast.Header>
-            <strong className="me-auto">✓ Producto Agregado</strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">{toastMessage}</Toast.Body>
-        </Toast>
-      </ToastContainer>
-      
-      {/* Pie de página */}
-      <Footer />
-    </div>
   );
 }
 
 // Componente wrapper que provee el Router
 export default function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+      <Router>
+        <AppContent />
+      </Router>
   );
 }
-
