@@ -2,183 +2,174 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Modal, Form, Alert, Tabs, Tab, Spinner } from 'react-bootstrap';
 import { formatPrice } from '../utils/formatPrice';
 import * as localStorageUtils from '../utils/localStorage';
-import { getProducts, createProduct, updateProduct } from '../api/products';
+import { obtenerZapatillas, crearZapatilla, actualizarZapatilla } from '../api/products';
 
 // Componente del panel de administración
 function Admin() {
-  const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [productsError, setProductsError] = useState(null);
+  const [zapatillas, setZapatillas] = useState([]);
+  const [cargandoZapatillas, setCargandoZapatillas] = useState(true);
+  const [errorZapatillas, setErrorZapatillas] = useState(null);
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null); // null = creando nuevo
-  const [formData, setFormData] = useState({
-    name: '',
-    brand: '',
-    price: '',
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [zapatillaEditando, setZapatillaEditando] = useState(null); // null = creando nueva
+  const [formulario, setFormulario] = useState({
+    modelo: '',
+    marca: '',
+    precio: '',
     stock: '',
-    description: ''
+    talla: '',
+    color: '',
   });
 
-  const [users, setUsers] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
 
   // Cargar usuarios (siguen viniendo de localStorage como antes)
   useEffect(() => {
-    const registeredUsers = localStorageUtils.getUsers();
-    setUsers(registeredUsers);
+    const usuariosRegistrados = localStorageUtils.getUsers();
+    setUsuarios(usuariosRegistrados);
   }, []);
 
-  // Cargar productos desde el backend al montar el componente
+  // Cargar zapatillas desde el backend al montar el componente
   useEffect(() => {
-    const loadProducts = async () => {
+    const cargarZapatillas = async () => {
       try {
-        const backendProducts = await getProducts();
-        setProducts(backendProducts);
+        const data = await obtenerZapatillas();
+        setZapatillas(data);
       } catch (error) {
         console.error(error);
-        setProductsError('No se pudieron cargar los productos desde el servidor');
+        setErrorZapatillas('No se pudieron cargar las zapatillas desde el servidor');
       } finally {
-        setLoadingProducts(false);
+        setCargandoZapatillas(false);
       }
     };
 
-    loadProducts();
+    cargarZapatillas();
   }, []);
 
-  // Preparar formulario para crear nuevo producto
-  const handleNewProduct = () => {
-    setEditingProduct(null); // indica modo "crear"
-    setFormData({
-      name: '',
-      brand: '',
-      price: '',
+  // Preparar formulario para crear nueva zapatilla
+  const manejarNuevaZapatilla = () => {
+    setZapatillaEditando(null); // indica modo "crear"
+    setFormulario({
+      modelo: '',
+      marca: '',
+      precio: '',
       stock: '',
-      description: ''
+      talla: '',
+      color: '',
     });
-    setShowModal(true);
+    setMostrarModal(true);
   };
 
-  // Manejar edición de producto existente
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    setFormData({
-      name: product.name,
-      brand: product.brand,
-      price: product.price,
-      stock: product.stock,
-      description: product.description
+  // Manejar edición de zapatilla existente
+  const manejarEditar = (zapatilla) => {
+    setZapatillaEditando(zapatilla);
+    setFormulario({
+      modelo: zapatilla.modelo || '',
+      marca: zapatilla.marca || '',
+      precio: zapatilla.precio != null ? zapatilla.precio : '',
+      stock: zapatilla.stock != null ? zapatilla.stock : '',
+      talla: zapatilla.talla != null ? zapatilla.talla : '',
+      color: zapatilla.color || '',
     });
-    setShowModal(true);
+    setMostrarModal(true);
   };
 
-  // Guardar (crear o actualizar) producto en el backend
-  const handleSave = async () => {
+  // Guardar (crear o actualizar) zapatilla en el backend
+  const manejarGuardar = async () => {
     try {
-      const newStock = parseInt(formData.stock, 10);
-      const newPrice = parseFloat(formData.price);
+      let zapatillaGuardada;
 
-      const baseData = {
-        name: formData.name,
-        brand: formData.brand,
-        price: isNaN(newPrice) ? 0 : newPrice,
-        stock: isNaN(newStock) ? 0 : newStock,
-        description: formData.description,
-      };
-
-      let savedProduct;
-
-      if (editingProduct) {
+      if (zapatillaEditando) {
         // Modo edición
-        const updatedProduct = {
-          ...editingProduct,
-          ...baseData,
-        };
-        savedProduct = await updateProduct(updatedProduct);
-        setProducts((prev) =>
-            prev.map((p) => (p.id === savedProduct.id ? savedProduct : p))
+        zapatillaGuardada = await actualizarZapatilla(zapatillaEditando, formulario);
+        setZapatillas((prev) =>
+            prev.map((z) => (z.id === zapatillaGuardada.id ? zapatillaGuardada : z))
         );
       } else {
         // Modo creación
-        savedProduct = await createProduct(baseData);
-        setProducts((prev) => [...prev, savedProduct]);
+        zapatillaGuardada = await crearZapatilla(formulario);
+        setZapatillas((prev) => [...prev, zapatillaGuardada]);
       }
 
-      // Disparar evento personalizado por si otros componentes escuchan cambios
+      // Evento por si otros componentes necesitan saber que cambió el stock
       window.dispatchEvent(
           new CustomEvent('stockUpdated', {
-            detail: { productId: savedProduct.id, newStock: savedProduct.stock },
+            detail: { productId: zapatillaGuardada.id, newStock: zapatillaGuardada.stock },
           })
       );
     } catch (error) {
-      console.error('Error al guardar producto en el backend', error);
-      alert('Ocurrió un error al guardar el producto. Inténtalo nuevamente.');
+      console.error('Error al guardar la zapatilla en el backend', error);
+      alert('Ocurrió un error al guardar la zapatilla. Inténtalo nuevamente.');
     }
 
-    setShowModal(false);
-    setEditingProduct(null);
+    setMostrarModal(false);
+    setZapatillaEditando(null);
   };
 
   // Cerrar modal sin guardar
-  const handleClose = () => {
-    setShowModal(false);
-    setEditingProduct(null);
+  const manejarCerrar = () => {
+    setMostrarModal(false);
+    setZapatillaEditando(null);
   };
 
   return (
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Panel de Administración</h2>
-          {/* Botón para crear nuevo producto */}
-          <Button variant="success" onClick={handleNewProduct}>
-            + Agregar Producto
+          <Button variant="success" onClick={manejarNuevaZapatilla}>
+            + Agregar Zapatilla
           </Button>
         </div>
 
         <Alert variant="info">
-          Gestiona el inventario, precios de los productos y usuarios registrados
+          Gestiona el inventario, precios de las zapatillas y usuarios registrados
         </Alert>
 
-        <Tabs defaultActiveKey="products" className="mb-3">
-          <Tab eventKey="products" title="Productos">
-            {loadingProducts ? (
+        <Tabs defaultActiveKey="productos" className="mb-3">
+          <Tab eventKey="productos" title="Productos">
+            {cargandoZapatillas ? (
                 <div className="text-center py-5">
                   <Spinner animation="border" role="status" className="me-2" />
-                  <span>Cargando productos...</span>
+                  <span>Cargando zapatillas...</span>
                 </div>
-            ) : productsError ? (
-                <Alert variant="danger">{productsError}</Alert>
+            ) : errorZapatillas ? (
+                <Alert variant="danger">{errorZapatillas}</Alert>
             ) : (
                 <Table responsive striped bordered hover>
                   <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Producto</th>
+                    <th>Modelo</th>
                     <th>Marca</th>
                     <th>Precio</th>
                     <th>Stock</th>
+                    <th>Talla</th>
+                    <th>Color</th>
                     <th>Acciones</th>
                   </tr>
                   </thead>
                   <tbody>
-                  {products.length === 0 ? (
+                  {zapatillas.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="text-center text-muted">
-                          No hay productos cargados aún. Usa el botón "Agregar Producto".
+                        <td colSpan="8" className="text-center text-muted">
+                          No hay zapatillas cargadas aún. Usa el botón "Agregar Zapatilla".
                         </td>
                       </tr>
                   ) : (
-                      products.map((product) => (
-                          <tr key={product.id}>
-                            <td>{product.id}</td>
-                            <td>{product.name}</td>
-                            <td>{product.brand}</td>
-                            <td>{formatPrice(product.price)}</td>
-                            <td>{product.stock}</td>
+                      zapatillas.map((z) => (
+                          <tr key={z.id}>
+                            <td>{z.id}</td>
+                            <td>{z.modelo}</td>
+                            <td>{z.marca}</td>
+                            <td>{formatPrice(z.precio || 0)}</td>
+                            <td>{z.stock}</td>
+                            <td>{z.talla}</td>
+                            <td>{z.color}</td>
                             <td>
                               <Button
                                   size="sm"
                                   variant="primary"
-                                  onClick={() => handleEdit(product)}
+                                  onClick={() => manejarEditar(z)}
                               >
                                 Editar
                               </Button>
@@ -191,7 +182,7 @@ function Admin() {
             )}
           </Tab>
 
-          <Tab eventKey="users" title="Usuarios Registrados">
+          <Tab eventKey="usuarios" title="Usuarios Registrados">
             <Table responsive striped bordered hover>
               <thead>
               <tr>
@@ -203,30 +194,30 @@ function Admin() {
               </tr>
               </thead>
               <tbody>
-              {users.length === 0 ? (
+              {usuarios.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="text-center text-muted">
                       No hay usuarios registrados
                     </td>
                   </tr>
               ) : (
-                  users.map((user) => (
-                      <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
+                  usuarios.map((usuario) => (
+                      <tr key={usuario.id}>
+                        <td>{usuario.id}</td>
+                        <td>{usuario.name}</td>
+                        <td>{usuario.email}</td>
                         <td>
                       <span
                           className={`badge bg-${
-                              user.type === 'admin' ? 'danger' : 'primary'
+                              usuario.type === 'admin' ? 'danger' : 'primary'
                           }`}
                       >
-                        {user.type}
+                        {usuario.type}
                       </span>
                         </td>
                         <td>
-                          {user.registeredAt
-                              ? new Date(user.registeredAt).toLocaleDateString(
+                          {usuario.registeredAt
+                              ? new Date(usuario.registeredAt).toLocaleDateString(
                                   'es-CL',
                                   {
                                     year: 'numeric',
@@ -246,21 +237,21 @@ function Admin() {
           </Tab>
         </Tabs>
 
-        <Modal show={showModal} onHide={handleClose}>
+        <Modal show={mostrarModal} onHide={manejarCerrar}>
           <Modal.Header closeButton>
             <Modal.Title>
-              {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+              {zapatillaEditando ? 'Editar Zapatilla' : 'Nueva Zapatilla'}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group className="mb-3">
-                <Form.Label>Nombre</Form.Label>
+                <Form.Label>Modelo</Form.Label>
                 <Form.Control
                     type="text"
-                    value={formData.name}
+                    value={formulario.modelo}
                     onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
+                        setFormulario({ ...formulario, modelo: e.target.value })
                     }
                 />
               </Form.Group>
@@ -268,9 +259,9 @@ function Admin() {
                 <Form.Label>Marca</Form.Label>
                 <Form.Control
                     type="text"
-                    value={formData.brand}
+                    value={formulario.marca}
                     onChange={(e) =>
-                        setFormData({ ...formData, brand: e.target.value })
+                        setFormulario({ ...formulario, marca: e.target.value })
                     }
                 />
               </Form.Group>
@@ -279,9 +270,9 @@ function Admin() {
                 <Form.Control
                     type="number"
                     step="1"
-                    value={formData.price}
+                    value={formulario.precio}
                     onChange={(e) =>
-                        setFormData({ ...formData, price: e.target.value })
+                        setFormulario({ ...formulario, precio: e.target.value })
                     }
                 />
               </Form.Group>
@@ -289,31 +280,41 @@ function Admin() {
                 <Form.Label>Stock</Form.Label>
                 <Form.Control
                     type="number"
-                    value={formData.stock}
+                    value={formulario.stock}
                     onChange={(e) =>
-                        setFormData({ ...formData, stock: e.target.value })
+                        setFormulario({ ...formulario, stock: e.target.value })
                     }
                 />
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Descripción</Form.Label>
+                <Form.Label>Talla</Form.Label>
                 <Form.Control
-                    as="textarea"
-                    rows={3}
-                    value={formData.description}
+                    type="number"
+                    step="0.5"
+                    value={formulario.talla}
                     onChange={(e) =>
-                        setFormData({ ...formData, description: e.target.value })
+                        setFormulario({ ...formulario, talla: e.target.value })
+                    }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Color</Form.Label>
+                <Form.Control
+                    type="text"
+                    value={formulario.color}
+                    onChange={(e) =>
+                        setFormulario({ ...formulario, color: e.target.value })
                     }
                 />
               </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+            <Button variant="secondary" onClick={manejarCerrar}>
               Cancelar
             </Button>
-            <Button variant="primary" onClick={handleSave}>
-              {editingProduct ? 'Guardar Cambios' : 'Crear Producto'}
+            <Button variant="primary" onClick={manejarGuardar}>
+              {zapatillaEditando ? 'Guardar Cambios' : 'Crear Zapatilla'}
             </Button>
           </Modal.Footer>
         </Modal>
