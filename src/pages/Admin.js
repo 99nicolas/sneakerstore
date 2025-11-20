@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Modal, Form, Alert, Tabs, Tab, Spinner } from 'react-bootstrap';
 import { formatPrice } from '../utils/formatPrice';
 import * as localStorageUtils from '../utils/localStorage';
-import { getProducts, updateProduct } from '../api/products';
+import { getProducts, createProduct, updateProduct } from '../api/products';
 
 // Componente del panel de administración
 function Admin() {
@@ -11,7 +11,7 @@ function Admin() {
   const [productsError, setProductsError] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null); // null = creando nuevo
   const [formData, setFormData] = useState({
     name: '',
     brand: '',
@@ -45,7 +45,20 @@ function Admin() {
     loadProducts();
   }, []);
 
-  // Manejar edición de producto
+  // Preparar formulario para crear nuevo producto
+  const handleNewProduct = () => {
+    setEditingProduct(null); // indica modo "crear"
+    setFormData({
+      name: '',
+      brand: '',
+      price: '',
+      stock: '',
+      description: ''
+    });
+    setShowModal(true);
+  };
+
+  // Manejar edición de producto existente
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
@@ -58,36 +71,43 @@ function Admin() {
     setShowModal(true);
   };
 
-  // Guardar cambios del producto en el backend
+  // Guardar (crear o actualizar) producto en el backend
   const handleSave = async () => {
-    if (!editingProduct) return;
-
     try {
       const newStock = parseInt(formData.stock, 10);
       const newPrice = parseFloat(formData.price);
 
-      const updatedProduct = {
-        ...editingProduct,
+      const baseData = {
         name: formData.name,
         brand: formData.brand,
-        price: isNaN(newPrice) ? editingProduct.price : newPrice,
-        stock: isNaN(newStock) ? editingProduct.stock : newStock,
+        price: isNaN(newPrice) ? 0 : newPrice,
+        stock: isNaN(newStock) ? 0 : newStock,
         description: formData.description,
       };
 
-      // Llamada al backend para guardar cambios
-      const savedProduct = await updateProduct(updatedProduct);
+      let savedProduct;
 
-      // Actualizar productos en el estado local con la respuesta del backend
-      setProducts((prev) =>
-        prev.map((p) => (p.id === savedProduct.id ? savedProduct : p))
-      );
+      if (editingProduct) {
+        // Modo edición
+        const updatedProduct = {
+          ...editingProduct,
+          ...baseData,
+        };
+        savedProduct = await updateProduct(updatedProduct);
+        setProducts((prev) =>
+            prev.map((p) => (p.id === savedProduct.id ? savedProduct : p))
+        );
+      } else {
+        // Modo creación
+        savedProduct = await createProduct(baseData);
+        setProducts((prev) => [...prev, savedProduct]);
+      }
 
-      // Disparar evento personalizado para notificar a otros componentes (si lo sigues usando)
+      // Disparar evento personalizado por si otros componentes escuchan cambios
       window.dispatchEvent(
-        new CustomEvent('stockUpdated', {
-          detail: { productId: savedProduct.id, newStock: savedProduct.stock },
-        })
+          new CustomEvent('stockUpdated', {
+            detail: { productId: savedProduct.id, newStock: savedProduct.stock },
+          })
       );
     } catch (error) {
       console.error('Error al guardar producto en el backend', error);
@@ -105,63 +125,75 @@ function Admin() {
   };
 
   return (
-    <Container>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Panel de Administración</h2>
-      </div>
+      <Container>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2>Panel de Administración</h2>
+          {/* Botón para crear nuevo producto */}
+          <Button variant="success" onClick={handleNewProduct}>
+            + Agregar Producto
+          </Button>
+        </div>
 
-      <Alert variant="info">
-        Gestiona el inventario, precios de los productos y usuarios registrados
-      </Alert>
+        <Alert variant="info">
+          Gestiona el inventario, precios de los productos y usuarios registrados
+        </Alert>
 
-      <Tabs defaultActiveKey="products" className="mb-3">
-        <Tab eventKey="products" title="Productos">
-          {loadingProducts ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" role="status" className="me-2" />
-              <span>Cargando productos...</span>
-            </div>
-          ) : productsError ? (
-            <Alert variant="danger">{productsError}</Alert>
-          ) : (
+        <Tabs defaultActiveKey="products" className="mb-3">
+          <Tab eventKey="products" title="Productos">
+            {loadingProducts ? (
+                <div className="text-center py-5">
+                  <Spinner animation="border" role="status" className="me-2" />
+                  <span>Cargando productos...</span>
+                </div>
+            ) : productsError ? (
+                <Alert variant="danger">{productsError}</Alert>
+            ) : (
+                <Table responsive striped bordered hover>
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Marca</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {products.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted">
+                          No hay productos cargados aún. Usa el botón "Agregar Producto".
+                        </td>
+                      </tr>
+                  ) : (
+                      products.map((product) => (
+                          <tr key={product.id}>
+                            <td>{product.id}</td>
+                            <td>{product.name}</td>
+                            <td>{product.brand}</td>
+                            <td>{formatPrice(product.price)}</td>
+                            <td>{product.stock}</td>
+                            <td>
+                              <Button
+                                  size="sm"
+                                  variant="primary"
+                                  onClick={() => handleEdit(product)}
+                              >
+                                Editar
+                              </Button>
+                            </td>
+                          </tr>
+                      ))
+                  )}
+                  </tbody>
+                </Table>
+            )}
+          </Tab>
+
+          <Tab eventKey="users" title="Usuarios Registrados">
             <Table responsive striped bordered hover>
               <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Producto</th>
-                  <th>Marca</th>
-                  <th>Precio</th>
-                  <th>Stock</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id}>
-                    <td>{product.id}</td>
-                    <td>{product.name}</td>
-                    <td>{product.brand}</td>
-                    <td>{formatPrice(product.price)}</td>
-                    <td>{product.stock}</td>
-                    <td>
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => handleEdit(product)}
-                      >
-                        Editar
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </Tab>
-
-        <Tab eventKey="users" title="Usuarios Registrados">
-          <Table responsive striped bordered hover>
-            <thead>
               <tr>
                 <th>ID</th>
                 <th>Nombre</th>
@@ -169,121 +201,123 @@ function Admin() {
                 <th>Tipo</th>
                 <th>Fecha de Registro</th>
               </tr>
-            </thead>
-            <tbody>
+              </thead>
+              <tbody>
               {users.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center text-muted">
-                    No hay usuarios registrados
-                  </td>
-                </tr>
+                  <tr>
+                    <td colSpan="5" className="text-center text-muted">
+                      No hay usuarios registrados
+                    </td>
+                  </tr>
               ) : (
-                users.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>
+                  users.map((user) => (
+                      <tr key={user.id}>
+                        <td>{user.id}</td>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                        <td>
                       <span
-                        className={`badge bg-${
-                          user.type === 'admin' ? 'danger' : 'primary'
-                        }`}
+                          className={`badge bg-${
+                              user.type === 'admin' ? 'danger' : 'primary'
+                          }`}
                       >
                         {user.type}
                       </span>
-                    </td>
-                    <td>
-                      {user.registeredAt
-                        ? new Date(user.registeredAt).toLocaleDateString(
-                            'es-CL',
-                            {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          )
-                        : 'N/A'}
-                    </td>
-                  </tr>
-                ))
+                        </td>
+                        <td>
+                          {user.registeredAt
+                              ? new Date(user.registeredAt).toLocaleDateString(
+                                  'es-CL',
+                                  {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  }
+                              )
+                              : 'N/A'}
+                        </td>
+                      </tr>
+                  ))
               )}
-            </tbody>
-          </Table>
-        </Tab>
-      </Tabs>
+              </tbody>
+            </Table>
+          </Tab>
+        </Tabs>
 
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Producto</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Marca</Form.Label>
-              <Form.Control
-                type="text"
-                value={formData.brand}
-                onChange={(e) =>
-                  setFormData({ ...formData, brand: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Precio (CLP)</Form.Label>
-              <Form.Control
-                type="number"
-                step="1"
-                value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Stock</Form.Label>
-              <Form.Control
-                type="number"
-                value={formData.stock}
-                onChange={(e) =>
-                  setFormData({ ...formData, stock: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Guardar Cambios
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+        <Modal show={showModal} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Nombre</Form.Label>
+                <Form.Control
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                    }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Marca</Form.Label>
+                <Form.Control
+                    type="text"
+                    value={formData.brand}
+                    onChange={(e) =>
+                        setFormData({ ...formData, brand: e.target.value })
+                    }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Precio (CLP)</Form.Label>
+                <Form.Control
+                    type="number"
+                    step="1"
+                    value={formData.price}
+                    onChange={(e) =>
+                        setFormData({ ...formData, price: e.target.value })
+                    }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Stock</Form.Label>
+                <Form.Control
+                    type="number"
+                    value={formData.stock}
+                    onChange={(e) =>
+                        setFormData({ ...formData, stock: e.target.value })
+                    }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Descripción</Form.Label>
+                <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                    }
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Cancelar
+            </Button>
+            <Button variant="primary" onClick={handleSave}>
+              {editingProduct ? 'Guardar Cambios' : 'Crear Producto'}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
   );
 }
 

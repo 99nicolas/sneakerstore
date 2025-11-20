@@ -9,9 +9,21 @@ export async function getProducts() {
   return res.json();
 }
 
+// Crear un nuevo producto
+export async function createProduct(product) {
+  const res = await fetch(`${API_URL}/api/sneakers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(product),
+  });
+  if (!res.ok) {
+    throw new Error('Error al crear producto en el backend');
+  }
+  return res.json();
+}
+
 // Actualizar un producto completo (incluye stock, precio, etc.)
 export async function updateProduct(product) {
-  // Asumo endpoint tipo PUT /api/sneakers/{id}
   const res = await fetch(`${API_URL}/api/sneakers/${product.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -19,18 +31,6 @@ export async function updateProduct(product) {
   });
   if (!res.ok) {
     throw new Error('Error al actualizar producto en el backend');
-  }
-  return res.json();
-}
-
-// (Opcional) solo actualizar stock si tienes endpoint separado
-export async function updateProductStock(id, newStock) {
-  // Asumo endpoint tipo PATCH /api/sneakers/{id}/stock?cantidad=NEW_STOCK
-  const res = await fetch(`${API_URL}/api/sneakers/${id}/stock?cantidad=${newStock}`, {
-    method: 'PATCH',
-  });
-  if (!res.ok) {
-    throw new Error('Error al actualizar stock en el backend');
   }
   return res.json();
 }
