@@ -19,6 +19,7 @@ function Admin() {
     stock: '',
     talla: '',
     color: '',
+    image: '', // <-- campo nuevo para la URL
   });
 
   const [usuarios, setUsuarios] = useState([]);
@@ -56,6 +57,7 @@ function Admin() {
       stock: '',
       talla: '',
       color: '',
+      image: '',
     });
     setMostrarModal(true);
   };
@@ -70,6 +72,7 @@ function Admin() {
       stock: zapatilla.stock != null ? zapatilla.stock : '',
       talla: zapatilla.talla != null ? zapatilla.talla : '',
       color: zapatilla.color || '',
+      image: zapatilla.image || '', // <-- cargar URL existente
     });
     setMostrarModal(true);
   };
@@ -192,7 +195,6 @@ function Admin() {
                                   variant="warning"
                                   className="me-2"
                                   onClick={() => manejarModificar(z)}
-                                  aria-label={`Modificar ${z.modelo}`}
                               >
                                 Modificar
                               </Button>
@@ -200,7 +202,6 @@ function Admin() {
                                   size="sm"
                                   variant="danger"
                                   onClick={() => manejarEliminar(z)}
-                                  aria-label={`Eliminar ${z.modelo}`}
                               >
                                 Eliminar
                               </Button>
@@ -338,6 +339,21 @@ function Admin() {
                     }
                 />
               </Form.Group>
+
+              {/* NUEVO: URL de imagen */}
+              <Form.Group className="mb-3">
+                <Form.Label>URL de Imagen</Form.Label>
+                <Form.Control
+                    type="text"
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                    value={formulario.image}
+                    onChange={(e) =>
+                        setFormulario({ ...formulario, image: e.target.value })
+                    }
+                />
+                <Form.Text className="text-muted">Ingresa la URL de la imagen (opcional).</Form.Text>
+              </Form.Group>
+
             </Form>
           </Modal.Body>
           <Modal.Footer>

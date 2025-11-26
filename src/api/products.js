@@ -18,6 +18,7 @@ export async function crearZapatilla(datosFormulario) {
     color: datosFormulario.color || null,
     precio: datosFormulario.precio ? Number(datosFormulario.precio) : null,
     stock: datosFormulario.stock ? Number(datosFormulario.stock) : 0,
+    image: datosFormulario.image || null, // <-- URL de imagen
   };
 
   const res = await fetch(`${API_URL}/api/sneakers`, {
@@ -41,6 +42,7 @@ export async function actualizarZapatilla(zapatilla, datosFormulario) {
     color: datosFormulario.color || null,
     precio: datosFormulario.precio ? Number(datosFormulario.precio) : null,
     stock: datosFormulario.stock ? Number(datosFormulario.stock) : 0,
+    image: datosFormulario.image || null, // <-- URL de imagen
   };
 
   const res = await fetch(`${API_URL}/api/sneakers/${zapatilla.id}`, {
