@@ -70,7 +70,7 @@ function Blog() {
                 variant="top" 
                 src={article.image}
                 alt={article.title}
-                style={{ height: '200px', objectFit: 'cover' }}
+                style={{ height: '200px', objectFit: 'contain' }}
               />
               <Card.Body className="d-flex flex-column">
                 <div className="mb-2">

@@ -48,7 +48,7 @@ function Cart({ cart, onUpdateQuantity, onRemoveItem }) {
                     <img 
                       src={item.image} 
                       alt={item.name}
-                      style={{ width: '80px', height: '60px', objectFit: 'cover', marginRight: '15px' }}
+                      style={{ width: '80px', height: '60px', objectFit: 'contain', marginRight: '15px' }}
                     />
                     <div>
                       <strong>{item.name}</strong>

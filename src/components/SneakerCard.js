@@ -22,7 +22,7 @@ function SneakerCard({ sneaker, onAddToCart, onViewDetails }) {
           variant="top" 
           src={sneaker.image} 
           alt={sneaker.name}
-          style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
+          style={{ height: '200px', objectFit: 'contain', cursor: 'pointer' }}
           onClick={() => onViewDetails && onViewDetails(sneaker.id)}
         />
         <Card.Body className="d-flex flex-column">
