@@ -6,9 +6,10 @@ import { formatPrice } from '../utils/formatPrice';
 // Componente de detalles del producto
 // Muestra toda la información detallada de un producto específico
 function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
-  // Obtiene el ID del producto desde la URL
+  // Hooks: siempre al tope, en el mismo orden
   const { id } = useParams();
   const productId = parseInt(id, 10);
+  const [selectedSize, setSelectedSize] = useState('');
 
   // Busca el producto en la lista de sneakers (viene del backend)
   const baseProduct = sneakers.find(s => Number(s.id) === productId);
@@ -39,9 +40,6 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
         : Array.isArray(baseProduct.tallas) ? baseProduct.tallas
             : (baseProduct.talla != null ? [baseProduct.talla] : []),
   };
-
-  // Estado para la talla seleccionada por el usuario
-  const [selectedSize, setSelectedSize] = useState('');
 
   // Función para agregar el producto al carrito
   const handleAddToCart = () => {
