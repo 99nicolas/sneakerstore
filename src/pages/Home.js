@@ -11,22 +11,29 @@ function Home({ onAddToCart, onViewDetails, stock = {}, zapatillas = [] }) {
   // Obtener marcas únicas para el filtro
   const marcas = ['Todas', ...new Set(zapatillas.map(z => z.marca).filter(Boolean))];
 
-  // Combinar datos de zapatillas con stock actual (si usas estado extra de stock)
-  const zapatillasConStock = zapatillas.map(zapatilla => ({
-    ...zapatilla,
-    stock: stock[zapatilla.id] !== undefined ? stock[zapatilla.id] : zapatilla.stock
+  // Mapear las zapatillas del backend al shape que usa SneakerCard
+  const sneakersData = zapatillas.map(z => ({
+    id: z.id,
+    name: z.modelo || '',
+    brand: z.marca || '',
+    price: z.precio ?? 0,
+    stock: stock[z.id] !== undefined ? stock[z.id] : (z.stock ?? 0),
+    image: z.image || '', // si no hay imagen, queda vacío (puedes poner placeholder)
+    description: z.color || z.descripcion || '',
+    // tamaños: preferimos un array; si tienes solo 'talla' numérica lo convertimos
+    size: Array.isArray(z.size) ? z.size : (Array.isArray(z.tallas) ? z.tallas : (z.talla != null ? [z.talla] : [])),
   }));
 
   // Filtrar zapatillas basado en búsqueda y marca
-  const zapatillasFiltradas = zapatillasConStock.filter(zapatilla => {
+  const zapatillasFiltradas = sneakersData.filter(sneaker => {
     const texto = terminoBusqueda.toLowerCase();
     const coincideBusqueda =
-        (zapatilla.modelo || '').toLowerCase().includes(texto) ||
-        (zapatilla.marca || '').toLowerCase().includes(texto) ||
-        (zapatilla.color || '').toLowerCase().includes(texto);
+        (sneaker.name || '').toLowerCase().includes(texto) ||
+        (sneaker.brand || '').toLowerCase().includes(texto) ||
+        (sneaker.description || '').toLowerCase().includes(texto);
 
     const coincideMarca =
-        !filtroMarca || filtroMarca === 'Todas' || zapatilla.marca === filtroMarca;
+        !filtroMarca || filtroMarca === 'Todas' || sneaker.brand === filtroMarca;
 
     return coincideBusqueda && coincideMarca;
   });
@@ -76,17 +83,10 @@ function Home({ onAddToCart, onViewDetails, stock = {}, zapatillas = [] }) {
             </div>
         ) : (
             <Row xs={1} md={2} lg={3} className="g-4">
-              {zapatillasFiltradas.map((z) => (
-                  <Col key={z.id}>
+              {zapatillasFiltradas.map((sneaker) => (
+                  <Col key={sneaker.id}>
                     <SneakerCard
-                        sneaker={{
-                          id: z.id,
-                          name: z.modelo,     // SneakerCard espera name/brand/price
-                          brand: z.marca,
-                          price: z.precio,
-                          stock: z.stock,
-                          // si SneakerCard usa más props (imagen, descripción), se pueden mapear aquí
-                        }}
+                        sneaker={sneaker}
                         onAddToCart={onAddToCart}
                         onViewDetails={onViewDetails}
                     />
