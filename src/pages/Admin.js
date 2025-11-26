@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Modal, Form, Alert, Tabs, Tab, Spinner } from 'react-bootstrap';
 import { formatPrice } from '../utils/formatPrice';
 import * as localStorageUtils from '../utils/localStorage';
-import { obtenerZapatillas, crearZapatilla, actualizarZapatilla } from '../api/products';
+import { obtenerZapatillas, crearZapatilla, actualizarZapatilla, eliminarZapatilla } from '../api/products';
 
 // Componente del panel de administración
 function Admin() {
@@ -60,8 +60,8 @@ function Admin() {
     setMostrarModal(true);
   };
 
-  // Manejar edición de zapatilla existente
-  const manejarEditar = (zapatilla) => {
+  // Manejar edición: abre modal con los valores de la zapatilla
+  const manejarModificar = (zapatilla) => {
     setZapatillaEditando(zapatilla);
     setFormulario({
       modelo: zapatilla.modelo || '',
@@ -91,7 +91,7 @@ function Admin() {
         setZapatillas((prev) => [...prev, zapatillaGuardada]);
       }
 
-      // Evento por si otros componentes necesitan saber que cambió el stock
+      // Evento por si otros componentes necesitan saber que cambió el stock/listado
       window.dispatchEvent(
           new CustomEvent('stockUpdated', {
             detail: { productId: zapatillaGuardada.id, newStock: zapatillaGuardada.stock },
@@ -104,6 +104,27 @@ function Admin() {
 
     setMostrarModal(false);
     setZapatillaEditando(null);
+  };
+
+  // Eliminar zapatilla
+  const manejarEliminar = async (zapatilla) => {
+    const confirmar = window.confirm(`¿Seguro que quieres eliminar "${zapatilla.modelo}"?`);
+    if (!confirmar) return;
+
+    try {
+      await eliminarZapatilla(zapatilla.id);
+      setZapatillas((prev) => prev.filter((z) => z.id !== zapatilla.id));
+
+      // Evento por si otros componentes necesitan saber que cambió el stock/listado
+      window.dispatchEvent(
+          new CustomEvent('stockUpdated', {
+            detail: { productId: zapatilla.id, newStock: 0 },
+          })
+      );
+    } catch (error) {
+      console.error('Error al eliminar la zapatilla en el backend', error);
+      alert('Ocurrió un error al eliminar la zapatilla. Inténtalo nuevamente.');
+    }
   };
 
   // Cerrar modal sin guardar
@@ -168,10 +189,20 @@ function Admin() {
                             <td>
                               <Button
                                   size="sm"
-                                  variant="primary"
-                                  onClick={() => manejarEditar(z)}
+                                  variant="warning"
+                                  className="me-2"
+                                  onClick={() => manejarModificar(z)}
+                                  aria-label={`Modificar ${z.modelo}`}
                               >
-                                Editar
+                                Modificar
+                              </Button>
+                              <Button
+                                  size="sm"
+                                  variant="danger"
+                                  onClick={() => manejarEliminar(z)}
+                                  aria-label={`Eliminar ${z.modelo}`}
+                              >
+                                Eliminar
                               </Button>
                             </td>
                           </tr>
