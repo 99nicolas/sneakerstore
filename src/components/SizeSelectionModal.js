@@ -4,6 +4,18 @@ import { Modal, Button, ListGroup } from 'react-bootstrap';
 function SizeSelectionModal({ show, onHide, sneaker, onConfirm }) {
   const [selectedSize, setSelectedSize] = useState('');
 
+  // Normalizar y ordenar tallas en orden numérico ascendente.
+  // Este hook NO está condicionado por ningún return, siempre se ejecuta.
+  const availableSizes = useMemo(() => {
+    if (!sneaker) return [];
+    const raw = sneaker.size || sneaker.tallas || [];
+    return raw
+        .map(s => Number(String(s).replace(',', '.')))
+        .filter(n => !isNaN(n))
+        .sort((a, b) => a - b)
+        .map(n => String(n));
+  }, [sneaker]);
+
   const handleConfirm = () => {
     if (selectedSize) {
       onConfirm(sneaker, selectedSize);
@@ -17,19 +29,10 @@ function SizeSelectionModal({ show, onHide, sneaker, onConfirm }) {
     onHide();
   };
 
+  // Si no hay sneaker, devolvemos null (pero los hooks ya fueron llamados arriba)
   if (!sneaker) {
     return null;
   }
-
-  // Normalizar y ordenar tallas en orden numérico ascendente
-  const availableSizes = useMemo(() => {
-    const raw = sneaker.size || sneaker.tallas || [];
-    return raw
-        .map(s => Number(String(s).replace(',', '.')))
-        .filter(n => !isNaN(n))
-        .sort((a, b) => a - b)
-        .map(n => String(n));
-  }, [sneaker]);
 
   return (
       <Modal show={show} onHide={handleClose} centered>

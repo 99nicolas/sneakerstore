@@ -14,6 +14,20 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
   // Busca el producto en la lista de sneakers (viene del backend)
   const baseProduct = sneakers.find(s => Number(s.id) === productId);
 
+  // Ordenar tallas numéricamente de menor a mayor.
+  // Este hook se ejecuta siempre (antes de cualquier return condicional).
+  const sortedSizes = useMemo(() => {
+    if (!baseProduct) return [];
+    const raw = Array.isArray(baseProduct.tallas) ? baseProduct.tallas
+        : (Array.isArray(baseProduct.size) ? baseProduct.size
+            : (baseProduct.talla != null ? [baseProduct.talla] : []));
+    return raw
+        .map(s => Number(String(s).replace(',', '.')))
+        .filter(n => !isNaN(n))
+        .sort((a, b) => a - b)
+        .map(n => String(n));
+  }, [baseProduct]);
+
   // Si no lo encuentra, mostramos mensaje
   if (!baseProduct) {
     return (
@@ -35,20 +49,8 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
     stock: stock[baseProduct.id] !== undefined ? stock[baseProduct.id] : (baseProduct.stock ?? 0),
     image: baseProduct.image || baseProduct.imagen || '', // acepta 'image' o 'imagen'
     description: baseProduct.descripcion || baseProduct.color || '',
-    // Preferimos un array de tallas; si solo hay 'talla' numérica lo convertimos
-    sizes: Array.isArray(baseProduct.tallas) ? baseProduct.tallas
-        : (Array.isArray(baseProduct.size) ? baseProduct.size
-            : (baseProduct.talla != null ? [baseProduct.talla] : [])),
+    sizes: sortedSizes, // usamos las tallas ya ordenadas
   };
-
-  // Ordenar tallas numéricamente de menor a mayor
-  const sortedSizes = useMemo(() => {
-    return product.sizes
-        .map(s => Number(String(s).replace(',', '.')))
-        .filter(n => !isNaN(n))
-        .sort((a, b) => a - b)
-        .map(n => String(n));
-  }, [product.sizes]);
 
   // Función para agregar el producto al carrito
   const handleAddToCart = () => {
@@ -143,7 +145,7 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
                     <strong>Disponibilidad:</strong> {product.stock} unidades
                   </ListGroup.Item>
                   <ListGroup.Item>
-                    <strong>Tallas disponibles:</strong> {sortedSizes.length > 0 ? sortedSizes.join(', ') : 'Sin tallas registradas'}
+                    <strong>Tallas disponibles:</strong> {product.sizes.length > 0 ? product.sizes.join(', ') : 'Sin tallas registradas'}
                   </ListGroup.Item>
                 </ListGroup>
               </Card.Body>
@@ -153,10 +155,10 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
             <div className="mb-4">
               <h5 className="mb-3">Selecciona tu talla:</h5>
               <div className="d-flex flex-wrap gap-2">
-                {sortedSizes.length === 0 ? (
+                {product.sizes.length === 0 ? (
                     <div className="text-muted">No hay tallas disponibles</div>
                 ) : (
-                    sortedSizes.map((size) => (
+                    product.sizes.map((size) => (
                         <Button
                             key={size}
                             variant={selectedSize === String(size) ? 'primary' : 'outline-primary'}
@@ -176,7 +178,7 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
                   variant="primary"
                   size="lg"
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0 || sortedSizes.length === 0}
+                  disabled={product.stock === 0 || product.sizes.length === 0}
               >
                 {product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
               </Button>
