@@ -4,50 +4,50 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 const blogArticles = [
   {
     id: 1,
-    title: "Las mejores zapatillas para correr en 2024",
+    title: "Las Jordan 1 más caras vendidas en StockX",
     date: "15 de Octubre, 2025",
-    image: "https://via.placeholder.com/400x250/3498db/FFFFFF?text=Running+Shoes",
-    excerpt: "Descubre cuáles son las zapatillas más recomendadas por expertos para running este año. Tecnología, comodidad y rendimiento en una sola review.",
+    image: "https://images-wp.stockx.com/news/wp-content/uploads/2020/02/air-jordan-1-dunk-sole-pe-1986-lateral-e1646837291193.jpeg",
+    excerpt: "Descubre las Air Jordan 1 que han alcanzado precios astronómicos en el mercado de reventa. Desde las Chicago hasta las Fragment, conoce las colaboraciones más codiciadas.",
     author: "María González"
   },
   {
     id: 2,
-    title: "Cómo cuidar tus zapatillas de ante",
+    title: "Cómo autenticar tus Yeezy: Guía definitiva",
     date: "10 de Octubre, 2025",
-    image: "https://via.placeholder.com/400x250/e74c3c/FFFFFF?text=Suede+Care",
-    excerpt: "El ante es un material delicado que requiere cuidados especiales. Te enseñamos los mejores tips para mantener tus sneakers como nuevas.",
+    image: "https://ichef.bbci.co.uk/news/480/cpsprodpb/DAFA/production/_98885065_fakeyeezy's.jpg.webp",
+    excerpt: "En el mundo del reselling, saber identificar réplicas es crucial. Te enseñamos todos los detalles que debes revisar para verificar la autenticidad de tus Yeezy.",
     author: "Carlos Ruiz"
   },
   {
     id: 3,
-    title: "Historia de las Air Jordan",
+    title: "La historia del Nike Dunk: De cancha a ícono urbano",
     date: "5 de Octubre, 2025",
-    image: "https://via.placeholder.com/400x250/000000/FFFFFF?text=Air+Jordan",
-    excerpt: "Un recorrido por la historia de una de las líneas de zapatillas más icónicas del mundo. Desde 1985 hasta hoy.",
+    image: "https://blog.klekt.com/wp-content/uploads/2021/04/1985-Nike-Dunk-High-min.jpg",
+    excerpt: "Cómo un zapato de basketball de los 80s se convirtió en el sneaker más buscado por coleccionistas y en la joya de las colaboraciones con Travis Scott y Off-White.",
     author: "Ana Martínez"
   },
   {
     id: 4,
-    title: "Tendencias en sneakers para esta temporada",
+    title: "Drops más esperados: Lo que viene en sneakers limitados",
     date: "1 de Octubre, 2025",
-    image: "https://via.placeholder.com/400x250/2ecc71/FFFFFF?text=Sneaker+Trends",
-    excerpt: "Conoce las últimas tendencias en el mundo de las zapatillas. Colores, estilos y marcas que están dominando el mercado.",
+    image: "https://justfreshkicks.com/wp-content/uploads/2025/01/morehorizontal-scaled.jpg",
+    excerpt: "Calendario exclusivo de los próximos lanzamientos: New Balance 550, Nike SB collaborations y las Yeezy que romperán el mercado. Prepara tu billetera.",
     author: "Luis Fernández"
   },
   {
     id: 5,
-    title: "Zapatillas sostenibles: el futuro está aquí",
+    title: "Sneaker Reselling: ¿Inversión o burbuja?",
     date: "25 de Septiembre, 2025",
-    image: "https://via.placeholder.com/400x250/27ae60/FFFFFF?text=Eco+Sneakers",
-    excerpt: "Las marcas están apostando por la sostenibilidad. Descubre las mejores opciones eco-friendly del mercado.",
+    image: "https://i.ytimg.com/vi/dJryzKeGwtU/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAJm97grrKPkrjp7kUP-OFcI9Esgg",
+    excerpt: "Análisis del mercado secundario de sneakers. Cuánto puedes ganar con el reselling, qué modelos retienen valor y los secretos de los grandes revendedores de StockX y GOAT.",
     author: "Patricia López"
   },
   {
     id: 6,
-    title: "Guía completa: ¿Qué talla elegir?",
+    title: "Sneaker Bots: La batalla por los drops limitados",
     date: "20 de Septiembre, 2025",
-    image: "https://via.placeholder.com/400x250/f39c12/FFFFFF?text=Size+Guide",
-    excerpt: "No más errores al comprar online. Aprende a medir tu pie correctamente y encuentra tu talla perfecta en cualquier marca.",
+    image: "https://i.insider.com/601052eb1d2df20018b70e81?width=700",
+    excerpt: "Todo sobre el polémico mundo de los bots de compra. Cómo funcionan, por qué las marcas luchan contra ellos y estrategias reales para ganar drops sin romper las reglas.",
     author: "Roberto Sánchez"
   }
 ];
@@ -66,12 +66,14 @@ function Blog() {
         {blogArticles.map((article) => (
           <Col key={article.id}>
             <Card className="h-100 shadow-sm hover-shadow" style={{ cursor: 'pointer' }}>
-              <Card.Img 
-                variant="top" 
-                src={article.image}
-                alt={article.title}
-                style={{ height: '200px', objectFit: 'contain' }}
-              />
+              <div style={{ padding: '15px 15px 0 15px' }}>
+                <Card.Img 
+                  variant="top" 
+                  src={article.image}
+                  alt={article.title}
+                  style={{ height: '200px', objectFit: 'cover', borderRadius: '8px' }}
+                />
+              </div>
               <Card.Body className="d-flex flex-column">
                 <div className="mb-2">
                   <small className="text-muted">
