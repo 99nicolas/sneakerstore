@@ -71,14 +71,23 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
           {/* Columna izquierda: imagen del producto */}
           <Col md={6} className="mb-4">
             {product.image ? (
-                <img
-                    src={product.image}
-                    alt={product.modelo}
-                    className="img-fluid rounded shadow"
-                    style={{ width: '100%', height: 'auto' }}
-                />
+                <div 
+                    className="bg-white rounded shadow p-4 d-flex align-items-center justify-content-center"
+                    style={{ minHeight: '400px', maxHeight: '600px' }}
+                >
+                  <img
+                      src={product.image}
+                      alt={product.modelo}
+                      className="img-fluid"
+                      style={{ 
+                        maxWidth: '100%', 
+                        maxHeight: '550px',
+                        objectFit: 'contain'
+                      }}
+                  />
+                </div>
             ) : (
-                <div className="bg-light rounded shadow d-flex align-items-center justify-content-center" style={{height: 300}}>
+                <div className="bg-light rounded shadow d-flex align-items-center justify-content-center" style={{height: 400}}>
                   <span className="text-muted">Sin imagen</span>
                 </div>
             )}
