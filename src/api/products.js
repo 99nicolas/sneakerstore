@@ -9,6 +9,18 @@ export async function obtenerZapatillas() {
   return res.json();
 }
 
+// Helper: normalizar entrada de tallas a array de numbers
+function parseTallas(input) {
+  if (!input) return [];
+  if (Array.isArray(input)) return input.map(Number).filter(v => !isNaN(v));
+  return input
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .map(Number)
+      .filter(v => !isNaN(v));
+}
+
 // Crear una nueva zapatilla
 export async function crearZapatilla(datosFormulario) {
   const cuerpo = {
@@ -18,7 +30,8 @@ export async function crearZapatilla(datosFormulario) {
     color: datosFormulario.color || null,
     precio: datosFormulario.precio ? Number(datosFormulario.precio) : null,
     stock: datosFormulario.stock ? Number(datosFormulario.stock) : 0,
-    image: datosFormulario.image || null, // <-- URL de imagen
+    image: datosFormulario.image || null,
+    tallas: parseTallas(datosFormulario.tallas || datosFormulario.tallasInput || datosFormulario.tallas), // acepta array o string
   };
 
   const res = await fetch(`${API_URL}/api/sneakers`, {
@@ -42,7 +55,8 @@ export async function actualizarZapatilla(zapatilla, datosFormulario) {
     color: datosFormulario.color || null,
     precio: datosFormulario.precio ? Number(datosFormulario.precio) : null,
     stock: datosFormulario.stock ? Number(datosFormulario.stock) : 0,
-    image: datosFormulario.image || null, // <-- URL de imagen
+    image: datosFormulario.image || null,
+    tallas: parseTallas(datosFormulario.tallas || datosFormulario.tallasInput || datosFormulario.tallas),
   };
 
   const res = await fetch(`${API_URL}/api/sneakers/${zapatilla.id}`, {
