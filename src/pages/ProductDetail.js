@@ -111,14 +111,6 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
             {/* Precio */}
             <h2 className="text-primary mb-4">{formatPrice(product.precio)}</h2>
 
-            {/* Tarjeta de descripción */}
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>Descripción</Card.Title>
-                <Card.Text>{product.description || 'Sin descripción'}</Card.Text>
-              </Card.Body>
-            </Card>
-
             {/* Tarjeta de detalles */}
             <Card className="mb-4">
               <Card.Body>
@@ -126,6 +118,9 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
                 <ListGroup variant="flush">
                   <ListGroup.Item>
                     <strong>Marca:</strong> {product.marca || 'N/A'}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Color:</strong> {product.description || 'N/A'}
                   </ListGroup.Item>
                   <ListGroup.Item>
                     <strong>Disponibilidad:</strong> {product.stock} unidades
