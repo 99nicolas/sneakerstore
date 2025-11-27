@@ -239,6 +239,7 @@ function AppContent() {
               <Checkout
                   cart={cart}
                   onCheckoutComplete={handleCheckoutComplete}
+                  onNavigate={(page) => navigate('/' + page)}
               />
             } />
 
