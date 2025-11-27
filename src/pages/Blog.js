@@ -65,27 +65,109 @@ function Blog() {
       <Row xs={1} md={2} lg={3} className="g-4">
         {blogArticles.map((article) => (
           <Col key={article.id}>
-            <Card className="h-100 shadow-sm hover-shadow" style={{ cursor: 'pointer' }}>
-              <div style={{ padding: '15px 15px 0 15px' }}>
+            <Card 
+              className="h-100 border-0 shadow-lg overflow-hidden" 
+              style={{ 
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                borderRadius: '16px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+              }}
+            >
+              <div 
+                style={{ 
+                  background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                  padding: '25px',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: '-50%',
+                    right: '-50%',
+                    width: '200%',
+                    height: '200%',
+                    background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
+                    pointerEvents: 'none'
+                  }}
+                />
                 <Card.Img 
                   variant="top" 
                   src={article.image}
                   alt={article.title}
-                  style={{ height: '200px', objectFit: 'cover', borderRadius: '8px' }}
+                  style={{ 
+                    height: '240px', 
+                    objectFit: 'cover', 
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    position: 'relative',
+                    zIndex: 1
+                  }}
                 />
               </div>
-              <Card.Body className="d-flex flex-column">
-                <div className="mb-2">
-                  <small className="text-muted">
+              <Card.Body className="d-flex flex-column p-4" style={{ background: '#fff' }}>
+                <div className="mb-3">
+                  <small 
+                    style={{ 
+                      color: '#6c757d',
+                      fontSize: '0.85rem',
+                      fontWeight: '500',
+                      letterSpacing: '0.5px'
+                    }}
+                  >
                     📅 {article.date} | ✍️ {article.author}
                   </small>
                 </div>
-                <Card.Title>{article.title}</Card.Title>
-                <Card.Text className="flex-grow-1 text-muted">
+                <Card.Title 
+                  style={{ 
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: '#1a1a1a',
+                    marginBottom: '12px',
+                    lineHeight: '1.4'
+                  }}
+                >
+                  {article.title}
+                </Card.Title>
+                <Card.Text 
+                  className="flex-grow-1" 
+                  style={{ 
+                    color: '#6c757d',
+                    fontSize: '0.95rem',
+                    lineHeight: '1.6',
+                    marginBottom: '20px'
+                  }}
+                >
                   {article.excerpt}
                 </Card.Text>
                 <button 
-                  className="btn btn-outline-primary mt-2" 
+                  className="btn btn-dark w-100" 
+                  style={{
+                    padding: '12px 24px',
+                    fontWeight: '600',
+                    fontSize: '0.95rem',
+                    borderRadius: '8px',
+                    transition: 'all 0.3s ease',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   onClick={(e) => e.preventDefault()}
                 >
                   Leer más →
