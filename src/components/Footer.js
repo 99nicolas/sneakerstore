@@ -11,7 +11,16 @@ function Footer() {
         <Row>
           {/* Sección de información de la tienda */}
           <Col md={4} className="mb-3 mb-md-0">
-            <h5>👟 Sneaker Store</h5>
+            <h5>
+              <img 
+                src="/logosns.png" 
+                alt="SNS Logo" 
+                height="30"
+                className="me-2"
+                style={{ objectFit: 'contain' }}
+              />
+              Sneaker Store
+            </h5>
             <p className="text-white-50">
               Tu tienda de confianza para las mejores zapatillas deportivas y casuales.
             </p>

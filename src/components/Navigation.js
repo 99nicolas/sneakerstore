@@ -13,7 +13,13 @@ function Navigation({ cartCount, user, onLogout }) {
       <Container>
         {/* Logo y nombre de la tienda */}
         <Navbar.Brand as={Link} to="/" className="brand-custom">
-          <span className="brand-icon">👟</span>
+          <img 
+            src="/logosns.png" 
+            alt="SNS Logo" 
+            height="45"
+            className="me-2"
+            style={{ objectFit: 'contain' }}
+          />
           <span className="brand-text">Sneaker Store</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
