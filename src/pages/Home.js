@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
 import SneakerCard from '../components/SneakerCard';
 
 // Componente de la página principal
@@ -7,6 +7,8 @@ import SneakerCard from '../components/SneakerCard';
 function Home({ onAddToCart, onViewDetails, stock = {}, zapatillas = [] }) {
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [filtroMarca, setFiltroMarca] = useState('');
+  const [ordenarPor, setOrdenarPor] = useState('');
+  const [direccionOrden, setDireccionOrden] = useState('asc');
 
   // Obtener marcas únicas para el filtro
   const marcas = ['Todas', ...new Set(zapatillas.map(z => z.marca).filter(Boolean))];
@@ -49,6 +51,38 @@ function Home({ onAddToCart, onViewDetails, stock = {}, zapatillas = [] }) {
     return coincideBusqueda && coincideMarca;
   });
 
+  // Ordenar zapatillas según el criterio seleccionado
+  const zapatillasOrdenadas = useMemo(() => {
+    return [...zapatillasFiltradas].sort((a, b) => {
+      // Si no hay criterio seleccionado, ordenar al azar
+      if (!ordenarPor) {
+        return Math.random() - 0.5;
+      }
+      
+      let comparacion = 0;
+      
+      switch(ordenarPor) {
+        case 'nombre':
+          comparacion = (a.name || '').localeCompare(b.name || '');
+          break;
+        case 'precio':
+          comparacion = a.price - b.price;
+          break;
+        case 'marca':
+          comparacion = (a.brand || '').localeCompare(b.brand || '');
+          break;
+        default:
+          comparacion = 0;
+      }
+      
+      return direccionOrden === 'asc' ? comparacion : -comparacion;
+    });
+  }, [zapatillasFiltradas, ordenarPor, direccionOrden]);
+
+  const toggleDireccionOrden = () => {
+    setDireccionOrden(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
+
   return (
       <Container>
         <div className="text-center mb-5">
@@ -72,29 +106,62 @@ function Home({ onAddToCart, onViewDetails, stock = {}, zapatillas = [] }) {
         </Row>
 
         <Row className="mb-4">
-          <Col md={4} className="mx-auto">
-            <Form.Select
-                value={filtroMarca}
-                onChange={(e) => setFiltroMarca(e.target.value)}
-                aria-label="Filtrar por marca"
-            >
-              {marcas.map(marca => (
-                  <option key={marca} value={marca}>
-                    {marca === 'Todas' ? 'Todas las marcas' : marca}
-                  </option>
-              ))}
-            </Form.Select>
+          <Col md={8} className="mx-auto">
+            <div className="d-flex gap-2 align-items-center">
+              <Form.Select
+                  value={filtroMarca}
+                  onChange={(e) => setFiltroMarca(e.target.value)}
+                  aria-label="Filtrar por marca"
+                  style={{ flex: '1' }}
+              >
+                {marcas.map(marca => (
+                    <option key={marca} value={marca}>
+                      {marca === 'Todas' ? 'Todas las marcas' : marca}
+                    </option>
+                ))}
+              </Form.Select>
+              
+              <Form.Select
+                  value={ordenarPor}
+                  onChange={(e) => setOrdenarPor(e.target.value)}
+                  aria-label="Ordenar por"
+                  style={{ flex: '1' }}
+              >
+                <option value="">Ordenar por</option>
+                <option value="nombre">Ordenar por Nombre</option>
+                <option value="precio">Ordenar por Precio</option>
+                <option value="marca">Ordenar por Marca</option>
+              </Form.Select>
+              
+              <Button 
+                variant="outline-primary" 
+                onClick={toggleDireccionOrden}
+                style={{ 
+                  padding: '0.375rem 0.75rem',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  minWidth: '50px',
+                  height: '38px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title={direccionOrden === 'asc' ? 'Ascendente' : 'Descendente'}
+              >
+                {direccionOrden === 'asc' ? '↑' : '↓'}
+              </Button>
+            </div>
           </Col>
         </Row>
 
-        {zapatillasFiltradas.length === 0 ? (
+        {zapatillasOrdenadas.length === 0 ? (
             <div className="text-center py-5">
               <h4 className="text-muted">No se encontraron productos</h4>
               <p>Intenta con otros términos de búsqueda</p>
             </div>
         ) : (
             <Row xs={1} md={2} lg={3} className="g-4">
-              {zapatillasFiltradas.map((sneaker) => (
+              {zapatillasOrdenadas.map((sneaker) => (
                   <Col key={sneaker.id}>
                     <SneakerCard
                         sneaker={sneaker}
