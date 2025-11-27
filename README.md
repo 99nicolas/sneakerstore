@@ -2,6 +2,10 @@
 
 Una aplicación web moderna de comercio electrónico para la venta de zapatillas deportivas, construida con React y Bootstrap.
 
+## 🚀 Demo
+
+**[Ver Demo en Vivo](https://sneakerstore-chi.vercel.app/)**
+
 ## Características
 
 ### Funcionalidades Principales
@@ -11,16 +15,19 @@ Una aplicación web moderna de comercio electrónico para la venta de zapatillas
 - 💳 **Proceso de Checkout**: Formulario completo para datos personales, dirección de entrega y pago
 - ✅ **Confirmación de Compra**: Páginas de éxito y error para el proceso de pago
 - 📱 **Diseño Responsivo**: Interfaz optimizada para móviles, tabletas y escritorios
-- 👤 **Sistema de Autenticación**: Login para usuarios y administradores
+- 👤 **Sistema de Autenticación**: Login y registro para usuarios y administradores
 - 🎨 **Detalles de Producto**: Página dedicada con información completa y selección de tallas
+- 📏 **Modal de Selección de Tallas**: Interfaz intuitiva para seleccionar tallas antes de agregar al carrito
 
 ### Características Técnicas
 - React 19.2.0
 - Bootstrap 5.3.8 y React-Bootstrap 2.10.10
-- Navegación basada en estado (SPA)
+- React Router DOM 7.9.4 para navegación SPA
 - Pruebas unitarias con Jest y React Testing Library
 - Validación de formularios
 - Diseño mobile-first
+- Utilidades para formateo de precios y persistencia con localStorage
+- Despliegue en Vercel
 
 ## Instalación
 
@@ -85,9 +92,12 @@ sneakerstore/
 │   ├── index.html
 │   └── manifest.json
 ├── src/
+│   ├── api/
+│   │   └── products.js
 │   ├── components/
 │   │   ├── Footer.js
 │   │   ├── Navigation.js
+│   │   ├── SizeSelectionModal.js
 │   │   └── SneakerCard.js
 │   ├── data/
 │   │   └── sneakers.js
@@ -98,14 +108,24 @@ sneakerstore/
 │   │   ├── Blog.js
 │   │   ├── Cart.js
 │   │   ├── Checkout.js
+│   │   ├── Checkout.test.js
 │   │   ├── CheckoutSuccess.js
+│   │   ├── CheckoutSuccess.test.js
 │   │   ├── CheckoutFailure.js
+│   │   ├── CheckoutFailure.test.js
 │   │   ├── Home.js
+│   │   ├── Home.test.js
 │   │   ├── Login.js
-│   │   └── ProductDetail.js
+│   │   ├── ProductDetail.js
+│   │   └── Register.js
+│   ├── utils/
+│   │   ├── formatPrice.js
+│   │   └── localStorage.js
 │   ├── App.js
+│   ├── App.css
 │   ├── App.test.js
-│   └── index.js
+│   ├── index.js
+│   └── index.css
 ├── package.json
 └── README.md
 ```
@@ -161,11 +181,13 @@ npm test -- --coverage
 
 ## Tecnologías Utilizadas
 
-- **React**: Framework principal
-- **Bootstrap**: Framework CSS
-- **React-Bootstrap**: Componentes de Bootstrap para React
+- **React 19.2.0**: Framework principal
+- **React Router DOM 7.9.4**: Navegación SPA
+- **Bootstrap 5.3.8**: Framework CSS
+- **React-Bootstrap 2.10.10**: Componentes de Bootstrap para React
 - **Jest**: Framework de pruebas
 - **React Testing Library**: Utilidades de prueba para React
+- **Vercel**: Plataforma de despliegue
 
 ## Contribuir
 
