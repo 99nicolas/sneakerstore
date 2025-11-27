@@ -12,15 +12,13 @@ function Navigation({ cartCount, user, onLogout }) {
     <Navbar bg="white" variant="light" expand="lg" className="mb-4 navbar-custom shadow-sm" fixed="top">
       <Container>
         {/* Logo y nombre de la tienda */}
-        <Navbar.Brand as={Link} to="/" className="brand-custom">
+        <Navbar.Brand as={Link} to="/" className="brand-custom" style={{ display: 'flex', alignItems: 'center' }}>
           <img 
             src="/logosns.png" 
             alt="SNS Logo" 
-            height="45"
-            className="me-2"
+            height="40"
             style={{ objectFit: 'contain' }}
           />
-          <span className="brand-text">Sneaker Store</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
