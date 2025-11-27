@@ -17,7 +17,6 @@ function Admin() {
     marca: '',
     precio: '',
     stock: '',
-    talla: '',
     color: '',
     image: '',
     tallas: [],        // array de tallas (strings en UI)
@@ -54,7 +53,6 @@ function Admin() {
       marca: '',
       precio: '',
       stock: '',
-      talla: '',
       color: '',
       image: '',
       tallas: [],
@@ -70,7 +68,6 @@ function Admin() {
       marca: zapatilla.marca || '',
       precio: zapatilla.precio != null ? zapatilla.precio : '',
       stock: zapatilla.stock != null ? zapatilla.stock : '',
-      talla: zapatilla.talla != null ? zapatilla.talla : '',
       color: zapatilla.color || '',
       image: zapatilla.image || '',
       // guardamos tallas como strings para facilitar la UI
@@ -115,7 +112,6 @@ function Admin() {
       const payload = {
         modelo: formulario.modelo,
         marca: formulario.marca,
-        talla: formulario.talla ? Number(String(formulario.talla).replace(',', '.')) : null,
         color: formulario.color,
         precio: formulario.precio ? Number(formulario.precio) : null,
         stock: formulario.stock ? Number(formulario.stock) : 0,
@@ -284,12 +280,6 @@ function Admin() {
               <Form.Group className="mb-3">
                 <Form.Label>Stock</Form.Label>
                 <Form.Control type="number" value={formulario.stock} onChange={(e) => setFormulario({ ...formulario, stock: e.target.value })} />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Talla (por defecto)</Form.Label>
-                <Form.Control type="number" step="0.5" value={formulario.talla} onChange={(e) => setFormulario({ ...formulario, talla: e.target.value })} />
-                <Form.Text className="text-muted">Este campo es opcional; usa la lista de tallas para tallas múltiples.</Form.Text>
               </Form.Group>
 
               {/* Gestión dinámica de tallas */}
