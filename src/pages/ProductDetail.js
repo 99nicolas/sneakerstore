@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Button, Badge, Card, ListGroup } from 'react-bootstrap';
 import { formatPrice } from '../utils/formatPrice';
@@ -36,10 +36,19 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
     image: baseProduct.image || baseProduct.imagen || '', // acepta 'image' o 'imagen'
     description: baseProduct.descripcion || baseProduct.color || '',
     // Preferimos un array de tallas; si solo hay 'talla' numérica lo convertimos
-    sizes: Array.isArray(baseProduct.size) ? baseProduct.size
-        : Array.isArray(baseProduct.tallas) ? baseProduct.tallas
-            : (baseProduct.talla != null ? [baseProduct.talla] : []),
+    sizes: Array.isArray(baseProduct.tallas) ? baseProduct.tallas
+        : (Array.isArray(baseProduct.size) ? baseProduct.size
+            : (baseProduct.talla != null ? [baseProduct.talla] : [])),
   };
+
+  // Ordenar tallas numéricamente de menor a mayor
+  const sortedSizes = useMemo(() => {
+    return product.sizes
+        .map(s => Number(String(s).replace(',', '.')))
+        .filter(n => !isNaN(n))
+        .sort((a, b) => a - b)
+        .map(n => String(n));
+  }, [product.sizes]);
 
   // Función para agregar el producto al carrito
   const handleAddToCart = () => {
@@ -71,7 +80,7 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
           {/* Columna izquierda: imagen del producto */}
           <Col md={6} className="mb-4">
             {product.image ? (
-                <div 
+                <div
                     className="bg-white rounded shadow p-4 d-flex align-items-center justify-content-center"
                     style={{ minHeight: '400px', maxHeight: '600px' }}
                 >
@@ -79,8 +88,8 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
                       src={product.image}
                       alt={product.modelo}
                       className="img-fluid"
-                      style={{ 
-                        maxWidth: '100%', 
+                      style={{
+                        maxWidth: '100%',
                         maxHeight: '550px',
                         objectFit: 'contain'
                       }}
@@ -111,6 +120,14 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
             {/* Precio */}
             <h2 className="text-primary mb-4">{formatPrice(product.precio)}</h2>
 
+            {/* Tarjeta de descripción */}
+            <Card className="mb-4">
+              <Card.Body>
+                <Card.Title>Descripción</Card.Title>
+                <Card.Text>{product.description || 'Sin descripción'}</Card.Text>
+              </Card.Body>
+            </Card>
+
             {/* Tarjeta de detalles */}
             <Card className="mb-4">
               <Card.Body>
@@ -126,7 +143,7 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
                     <strong>Disponibilidad:</strong> {product.stock} unidades
                   </ListGroup.Item>
                   <ListGroup.Item>
-                    <strong>Tallas disponibles:</strong> {product.sizes.length > 0 ? product.sizes.join(', ') : 'Sin tallas registradas'}
+                    <strong>Tallas disponibles:</strong> {sortedSizes.length > 0 ? sortedSizes.join(', ') : 'Sin tallas registradas'}
                   </ListGroup.Item>
                 </ListGroup>
               </Card.Body>
@@ -136,10 +153,10 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
             <div className="mb-4">
               <h5 className="mb-3">Selecciona tu talla:</h5>
               <div className="d-flex flex-wrap gap-2">
-                {product.sizes.length === 0 ? (
+                {sortedSizes.length === 0 ? (
                     <div className="text-muted">No hay tallas disponibles</div>
                 ) : (
-                    product.sizes.map((size) => (
+                    sortedSizes.map((size) => (
                         <Button
                             key={size}
                             variant={selectedSize === String(size) ? 'primary' : 'outline-primary'}
@@ -159,7 +176,7 @@ function ProductDetail({ onAddToCart, onBack, sneakers = [], stock = {} }) {
                   variant="primary"
                   size="lg"
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0 || product.sizes.length === 0}
+                  disabled={product.stock === 0 || sortedSizes.length === 0}
               >
                 {product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
               </Button>
